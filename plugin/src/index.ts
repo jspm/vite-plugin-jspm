@@ -23,17 +23,6 @@ function plugin(): PluginOption[] {
     {
       name: "jspm:pre",
       enforce: "pre",
-
-      config: (_config) => {
-        return {
-          ssr: {
-            external: [],
-          },
-          optimizeDeps: {
-            include: [],
-          },
-        };
-      },
       async resolveId(id) {
         console.log("here", id);
         if (
@@ -66,37 +55,6 @@ function plugin(): PluginOption[] {
         )}</script>`;
 
         return html.replace("<head>", "<head>" + importMapScriptTag);
-        // let htmlWithoutLocalScripts = html;
-        //
-        // const ast = parse(html, { comments: true });
-        // transform(ast, {
-        //   nodeTransforms: [
-        //     (node) => {
-        //       if (node.type !== 1) return;
-        //
-        //       if (node.tag === "script") {
-        //         const { src } = getScriptInfo(node);
-        //
-        //         if (src?.value?.content) {
-        //           htmlWithoutLocalScripts = htmlWithoutLocalScripts.replace(
-        //             node.loc.source,
-        //             ""
-        //           );
-        //
-        //           localModules.set(src.value.content, {
-        //             source: node.loc.source,
-        //           });
-        //         }
-        //       }
-        //       return;
-        //     },
-        //   ],
-        // });
-        //
-        // const outHtml = await generator.htmlGenerate(htmlWithoutLocalScripts, {
-        //   esModuleShims: true,
-        // });
-        // console.log("here", outHtml);
       },
     },
   ];
