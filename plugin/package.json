@@ -30,6 +30,8 @@
   },
   "homepage": "https://github.com/aslemammad/vite-plugin-jspm#readme",
   "devDependencies": {
+    "@vue/compiler-core": "^3.2.31",
+    "@vue/compiler-dom": "^3.2.31",
     "generator": "link:@types/@jspm/generator",
     "typescript": "^4.5.3",
     "vite": "^2.8.6"
