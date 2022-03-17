@@ -7,7 +7,7 @@ import { describe, afterAll, beforeAll, expect, test } from "vitest";
 
 const url = "http://localhost:3000";
 
-describe("build", async () => {
+describe("dev", async () => {
   let server: ViteDevServer;
 
   let browser: puppeteer.Browser;
