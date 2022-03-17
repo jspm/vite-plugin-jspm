@@ -1,12 +1,15 @@
 // @ts-ignore
 import { Generator } from "@jspm/generator";
-import {
-  parse,
-  transform,
-  AttributeNode,
-  ElementNode,
-} from "@vue/compiler-dom";
-import type { PluginOption } from "vite";
+import type { ConfigEnv, PluginOption } from "vite";
+
+/*
+ * shimgs in dev mode does not work with jspm since vite injects client/env and vite/client,
+ * which es-module-shims complains about (An import map is added after module script load was triggered.)
+ *
+ * jspm/es-module-shims also has problem with index.tsx files (+ those who are mentioned in the html file), so ignoring would also be a solution for these
+ *
+ * TODO: solution would be a way to make jspm & es-module-shims ignore some urls
+ */
 
 function plugin(): PluginOption[] {
   const generator = new Generator({
@@ -17,33 +20,47 @@ function plugin(): PluginOption[] {
     env: ["production", "browser", "module"],
   });
   const installPromiseCache: Promise<unknown>[] = [];
-  const localModules: Map<string, { source: string } | undefined> = new Map();
+  let env: ConfigEnv;
 
   return [
     {
       name: "jspm:pre",
       enforce: "pre",
+      config(_, _env) {
+        env = _env;
+      },
       async resolveId(id) {
-        console.log("here", id);
         if (
           id.startsWith("/") ||
           id.startsWith(".") ||
-          id.startsWith("vite/")
+          id.includes(".css") ||
+          id.includes(".html")
         ) {
-          localModules.set(id, undefined);
-          return;
+          return null;
+        }
+
+        console.log(env)
+        if (env.command === "serve") {
+          await generator.install(id);
+
+          console.log(id, generator.importMap.resolve(id))
+          return { id: generator.importMap.resolve(id), external: true };
         }
 
         // console.log('here', generator.importMap.resolve(id))
-        installPromiseCache.push(await generator.install(id));
+        installPromiseCache.push(generator.install(id));
 
         return { id, external: true };
-      },
+      }
     },
     {
       name: "jspm:post",
       enforce: "post",
       async transformIndexHtml(html) {
+        if (env.command === "serve") {
+          return
+        }
+
         await Promise.all(installPromiseCache);
         installPromiseCache.length = 0;
 
@@ -58,30 +75,6 @@ function plugin(): PluginOption[] {
       },
     },
   ];
-}
-
-// copied from vite/src/node/plugins/html.ts
-function getScriptInfo(node: ElementNode): {
-  src: AttributeNode | undefined;
-  isModule: boolean;
-  isAsync: boolean;
-} {
-  let src: AttributeNode | undefined;
-  let isModule = false;
-  let isAsync = false;
-  for (let i = 0; i < node.props.length; i++) {
-    const p = node.props[i];
-    if (p.type === 6) {
-      if (p.name === "src") {
-        src = p;
-      } else if (p.name === "type" && p.value && p.value.content === "module") {
-        isModule = true;
-      } else if (p.name === "async") {
-        isAsync = true;
-      }
-    }
-  }
-  return { src, isModule, isAsync };
 }
 
 export default plugin;
