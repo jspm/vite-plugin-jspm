@@ -1,4 +1,3 @@
-import sirv from "sirv";
 import puppeteer from "puppeteer";
 import { build, preview, PreviewServer } from "vite";
 import { describe, afterAll, beforeAll, expect, test } from "vitest";
