@@ -1,0 +1,29 @@
+// Vitest Snapshot v1
+
+exports[`build > contains importmap 1`] = `
+"<!DOCTYPE html><html lang=\\"en\\"><head><script async=\\"\\" src=\\"https://ga.jspm.io/npm:es-module-shims@1.4.1/dist/es-module-shims.js\\"></script>
+<script type=\\"importmap\\">{
+  \\"imports\\": {
+    \\"react\\": \\"https://ga.jspm.io/npm:react@17.0.2/index.js\\",
+    \\"react-dom\\": \\"https://ga.jspm.io/npm:react-dom@17.0.2/index.js\\"
+  },
+  \\"scopes\\": {
+    \\"https://ga.jspm.io/\\": {
+      \\"object-assign\\": \\"https://ga.jspm.io/npm:object-assign@4.1.1/index.js\\",
+      \\"scheduler\\": \\"https://ga.jspm.io/npm:scheduler@0.20.2/index.js\\"
+    }
+  }
+}</script>
+    <meta charset=\\"UTF-8\\">
+    <link rel=\\"icon\\" type=\\"image/svg+xml\\" href=\\"/src/favicon.svg\\">
+    <meta name=\\"viewport\\" content=\\"width=device-width, initial-scale=1.0\\">
+    <title>Vite App</title>
+    <script type=\\"module\\" crossorigin=\\"\\" src=\\"/assets/index.0fb49565.js\\"></script>
+  </head>
+  <body>
+    <div id=\\"root\\"><div><h1>Hello, world!</h1></div></div>
+    
+  
+
+</body></html>"
+`;
