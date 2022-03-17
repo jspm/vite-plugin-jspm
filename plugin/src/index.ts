@@ -1,5 +1,4 @@
-// @ts-ignore
-import { Generator } from "@jspm/generator";
+import { Generator, GeneratorOptions } from "@jspm/generator";
 import type { ConfigEnv, PluginOption } from "vite";
 
 /*
@@ -11,14 +10,17 @@ import type { ConfigEnv, PluginOption } from "vite";
  * TODO: solution would be a way to make jspm & es-module-shims ignore some urls
  */
 
-function plugin(): PluginOption[] {
-  const generator = new Generator({
-    mapUrl: import.meta.url,
-    defaultProvider: "jspm", // this is the default defaultProvider
-    // Always ensure to define your target environment to get a working map
-    // it is advisable to pass the "module" condition as supported by Webpack
-    env: ["production", "browser", "module"],
-  });
+const defaultOptions: GeneratorOptions = {
+  mapUrl: import.meta.url,
+  defaultProvider: "jspm", // this is the default defaultProvider
+  // Always ensure to define your target environment to get a working map
+  // it is advisable to pass the "module" condition as supported by Webpack
+  env: ["production", "browser", "module"],
+};
+
+function plugin(_options?: GeneratorOptions): PluginOption[] {
+  const options = Object.assign(defaultOptions, _options);
+  const generator = new Generator(options);
   const installPromiseCache: Promise<unknown>[] = [];
   let env: ConfigEnv;
 
@@ -39,26 +41,23 @@ function plugin(): PluginOption[] {
           return null;
         }
 
-        console.log(env)
         if (env.command === "serve") {
           await generator.install(id);
 
-          console.log(id, generator.importMap.resolve(id))
           return { id: generator.importMap.resolve(id), external: true };
         }
 
-        // console.log('here', generator.importMap.resolve(id))
         installPromiseCache.push(generator.install(id));
 
         return { id, external: true };
-      }
+      },
     },
     {
       name: "jspm:post",
       enforce: "post",
       async transformIndexHtml(html) {
         if (env.command === "serve") {
-          return
+          return;
         }
 
         await Promise.all(installPromiseCache);

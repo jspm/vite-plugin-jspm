@@ -30,9 +30,10 @@
   },
   "homepage": "https://github.com/aslemammad/vite-plugin-jspm#readme",
   "devDependencies": {
+    "@jspm/generator": "1.0.0-beta.30",
     "@vue/compiler-core": "^3.2.31",
     "@vue/compiler-dom": "^3.2.31",
-    "generator": "link:@types/@jspm/generator",
+    "node-fetch": "^3.2.3",
     "typescript": "^4.5.3",
     "vite": "^2.8.6"
   },
@@ -41,8 +42,5 @@
   },
   "engines": {
     "node": ">=14.0.0"
-  },
-  "dependencies": {
-    "@jspm/generator": "^1.0.0-beta.29"
   }
 }
