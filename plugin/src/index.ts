@@ -1,5 +1,5 @@
 import { Generator, GeneratorOptions } from "@jspm/generator";
-import type { ConfigEnv, PluginOption } from "vite";
+import type { ConfigEnv, Plugin } from "vite";
 
 /*
  * shimgs in dev mode does not work with jspm since vite injects client/env and vite/client,
@@ -10,15 +10,18 @@ import type { ConfigEnv, PluginOption } from "vite";
  * TODO: solution would be a way to make jspm & es-module-shims ignore some urls
  */
 
-const defaultOptions: GeneratorOptions = {
+type PluginOptions = GeneratorOptions & {
+  development?: boolean;
+}
+
+const defaultOptions: PluginOptions = {
+  development: false,
   mapUrl: import.meta.url,
-  defaultProvider: "jspm", // this is the default defaultProvider
-  // Always ensure to define your target environment to get a working map
-  // it is advisable to pass the "module" condition as supported by Webpack
+  defaultProvider: "jspm",
   env: ["production", "browser", "module"],
 };
 
-function plugin(_options?: GeneratorOptions): PluginOption[] {
+function plugin(_options?: PluginOptions): Plugin[] {
   const options = Object.assign(defaultOptions, _options);
   const generator = new Generator(options);
   const installPromiseCache: Promise<unknown>[] = [];
@@ -41,7 +44,7 @@ function plugin(_options?: GeneratorOptions): PluginOption[] {
           return null;
         }
 
-        if (env.command === "serve") {
+        if (!options.development && env.command === "serve") {
           await generator.install(id);
 
           return { id: generator.importMap.resolve(id), external: true };
