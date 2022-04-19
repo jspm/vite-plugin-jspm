@@ -1,21 +1,12 @@
 import { Generator, GeneratorOptions } from "@jspm/generator";
 import type { ConfigEnv, Plugin } from "vite";
 
-/*
- * shimgs in dev mode does not work with jspm since vite injects client/env and vite/client,
- * which es-module-shims complains about (An import map is added after module script load was triggered.)
- *
- * jspm/es-module-shims also has problem with index.tsx files (+ those who are mentioned in the html file), so ignoring would also be a solution for these
- *
- * TODO: solution would be a way to make jspm & es-module-shims ignore some urls
- */
-
 type PluginOptions = GeneratorOptions & {
   development?: boolean;
-}
+};
 
 const defaultOptions: PluginOptions = {
-  development: false,
+  development: true,
   mapUrl: import.meta.url,
   defaultProvider: "jspm",
   env: ["production", "browser", "module"],
@@ -44,12 +35,11 @@ function plugin(_options?: PluginOptions): Plugin[] {
           return null;
         }
 
-        if (!options.development && env.command === "serve") {
+        if (options.development && env.command === "serve") {
           await generator.install(id);
 
-          return { id: generator.importMap.resolve(id), external: true };
+          return { id: generator.resolve(id), external: true };
         }
-
         installPromiseCache.push(generator.install(id));
 
         return { id, external: true };
@@ -58,22 +48,36 @@ function plugin(_options?: PluginOptions): Plugin[] {
     {
       name: "jspm:post",
       enforce: "post",
-      async transformIndexHtml(html) {
-        if (env.command === "serve") {
-          return;
-        }
+      transformIndexHtml: {
+        // NODE_ENV is "production" in `vite build`
+        enforce: process.env?.NODE_ENV === "production" ? "post" : "pre",
+        async transform(html) {
+          await Promise.all(installPromiseCache);
+          installPromiseCache.length = 0;
 
-        await Promise.all(installPromiseCache);
-        installPromiseCache.length = 0;
-
-        const importMapScriptTag = `<script async src="https://ga.jspm.io/npm:es-module-shims@1.4.1/dist/es-module-shims.js"></script>
-<script type="importmap">${JSON.stringify(
-          generator.getMap(),
-          null,
-          2
-        )}</script>`;
-
-        return html.replace("<head>", "<head>" + importMapScriptTag);
+          return {
+            html,
+            tags: [
+              {
+                tag: "script",
+                attrs: {
+                  type: "importmap",
+                },
+                children: JSON.stringify(generator.getMap(), null, 2),
+                injectTo: "head-prepend",
+              },
+              {
+                tag: "script",
+                attrs: {
+                  type: "module",
+                  src: "https://ga.jspm.io/npm:es-module-shims@1.4.1/dist/es-module-shims.js",
+                  async: !(options.development && env.command === "serve"),
+                },
+                injectTo: "head-prepend",
+              },
+            ],
+          };
+        },
       },
     },
   ];
