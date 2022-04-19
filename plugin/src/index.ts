@@ -1,3 +1,4 @@
+import path from 'path'
 import { Generator, GeneratorOptions } from "@jspm/generator";
 import type { ConfigEnv, Plugin } from "vite";
 
@@ -26,6 +27,7 @@ function plugin(_options?: PluginOptions): Plugin[] {
         env = _env;
       },
       async resolveId(id) {
+        id = path.posix.normalize(id)
         if (
           id.startsWith("/") ||
           id.startsWith(".") ||
