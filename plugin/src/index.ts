@@ -36,8 +36,10 @@ function plugin(_options?: PluginOptions): Plugin[] {
         }
 
         if (options.development && env.command === "serve") {
+
           await generator.install(id);
 
+          console.log(id, generator.resolve(id))
           return { id: generator.resolve(id), external: true };
         }
         installPromiseCache.push(generator.install(id));
