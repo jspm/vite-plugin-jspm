@@ -17,7 +17,7 @@ importers:
       rollup-plugin-dts: ^4.2.0
       rollup-plugin-esbuild: ^4.8.2
       typescript: ^4.6.2
-      vite: ^2.8.6
+      vite: ^2.9.5
       vitest: latest
     devDependencies:
       '@rollup/plugin-alias': 3.1.9_rollup@2.70.1
@@ -33,7 +33,7 @@ importers:
       rollup-plugin-dts: 4.2.0_rollup@2.70.1+typescript@4.6.2
       rollup-plugin-esbuild: 4.8.2_esbuild@0.14.27+rollup@2.70.1
       typescript: 4.6.2
-      vite: 2.8.6
+      vite: 2.9.5
       vitest: 0.9.3
 
   plugin:
@@ -43,7 +43,7 @@ importers:
       '@vue/compiler-dom': ^3.2.31
       node-fetch: ^3.2.3
       typescript: ^4.5.3
-      vite: ^2.8.6
+      vite: ^2.9.5
     dependencies:
       '@jspm/generator': 1.0.0-beta.30_node-fetch@3.2.3
     devDependencies:
@@ -51,7 +51,7 @@ importers:
       '@vue/compiler-dom': 3.2.31
       node-fetch: 3.2.3
       typescript: 4.5.4
-      vite: 2.8.6
+      vite: 2.9.5
 
   test/basic:
     specifiers:
@@ -2844,30 +2844,6 @@ packages:
   /varint/6.0.0:
     resolution: {integrity: sha512-cXEIW6cfr15lFv563k4GuVuW/fiwjknytD37jIOLSdSWuOI6WnO/oKwmP2FQTU2l01LP8/M5TSAJpzUaGe3uWg==}
     dev: false
-
-  /vite/2.8.6:
-    resolution: {integrity: sha512-e4H0QpludOVKkmOsRyqQ7LTcMUDF3mcgyNU4lmi0B5JUbe0ZxeBBl8VoZ8Y6Rfn9eFKYtdXNPcYK97ZwH+K2ug==}
-    engines: {node: '>=12.2.0'}
-    hasBin: true
-    peerDependencies:
-      less: '*'
-      sass: '*'
-      stylus: '*'
-    peerDependenciesMeta:
-      less:
-        optional: true
-      sass:
-        optional: true
-      stylus:
-        optional: true
-    dependencies:
-      esbuild: 0.14.27
-      postcss: 8.4.12
-      resolve: 1.22.0
-      rollup: 2.70.1
-    optionalDependencies:
-      fsevents: 2.3.2
-    dev: true
 
   /vite/2.9.5:
     resolution: {integrity: sha512-dvMN64X2YEQgSXF1lYabKXw3BbN6e+BL67+P3Vy4MacnY+UzT1AfkHiioFSi9+uiDUiaDy7Ax/LQqivk6orilg==}
