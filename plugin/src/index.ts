@@ -1,4 +1,4 @@
-import path from 'path'
+import path from "path";
 import { Generator, GeneratorOptions } from "@jspm/generator";
 import type { ConfigEnv, Plugin } from "vite";
 
@@ -27,21 +27,19 @@ function plugin(_options?: PluginOptions): Plugin[] {
         env = _env;
       },
       async resolveId(id) {
-        id = path.posix.normalize(id)
         if (
           id.startsWith("/") ||
           id.startsWith(".") ||
           id.includes(".css") ||
-          id.includes(".html")
+          id.includes(".html") ||
+          path.isAbsolute(id)
         ) {
           return null;
         }
 
         if (options.development && env.command === "serve") {
-          console.log(id);
           await generator.install(id);
 
-          console.log(id, generator.resolve(id));
           return {
             id: generator.resolve(id) as string,
             external: true,
