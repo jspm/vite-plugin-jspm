@@ -1,32 +1,79 @@
 import path from "path";
 import { Generator, GeneratorOptions } from "@jspm/generator";
-import type { ConfigEnv, Plugin } from "vite";
+import type { ConfigEnv, Plugin, ResolvedConfig } from "vite";
 
 type PluginOptions = GeneratorOptions & {
   development?: boolean;
 };
 
-const defaultOptions: PluginOptions = {
+const getDefaultOptions = (env: ConfigEnv): PluginOptions => ({
   development: true,
   mapUrl: import.meta.url,
   defaultProvider: "jspm",
-  env: ["production", "browser", "module"],
+  env: [
+    env.mode === "development" ? "development" : "production",
+    "browser",
+    "module",
+  ],
+});
+
+let __options: PluginOptions | null = null;
+
+const getOptions = (env: ConfigEnv, options?: PluginOptions): PluginOptions => {
+  if (__options) {
+    return __options;
+  }
+  return (__options = { ...getDefaultOptions(env), ...options });
 };
 
+let __generator: Generator | null = null;
+
+function getGenerator(options: PluginOptions) {
+  if (__generator) {
+    return __generator;
+  }
+  return (__generator = new Generator(options));
+}
+
 function plugin(_options?: PluginOptions): Plugin[] {
-  const options = Object.assign(defaultOptions, _options);
-  const generator = new Generator(options);
   const installPromiseCache: Promise<unknown>[] = [];
+  let resolvedConfig: ResolvedConfig;
+  const resolvedDeps: string[] = [];
   let env: ConfigEnv;
 
   return [
     {
       name: "jspm:pre",
       enforce: "pre",
-      config(_, _env) {
+      config(_config, _env) {
         env = _env;
       },
-      async resolveId(id) {
+      configResolved(_config) {
+        resolvedConfig = _config;
+
+        // @ts-ignore
+        resolvedConfig.plugins.push({
+          name: "vite-plugin-ignore-static-import-replace-idprefix",
+          transform: (code, _, ctx) => {
+            if (ctx?.ssr) {
+              return code;
+            }
+            const VALID_ID_PREFIX = `/@id/`;
+            const resolvedDepsRegex = new RegExp(
+              `${VALID_ID_PREFIX}(${resolvedDeps.join("|")})`,
+              "g"
+            );
+            return resolvedDepsRegex.test(code)
+              ? code.replace(resolvedDepsRegex, (_, s1) => s1)
+              : code;
+          },
+        } as Plugin);
+      },
+      async resolveId(id, _, ctx) {
+        if (ctx.ssr) {
+          // No plans on getting this working in SSR
+          return;
+        }
         if (
           id.startsWith("/") ||
           id.startsWith(".") ||
@@ -36,12 +83,15 @@ function plugin(_options?: PluginOptions): Plugin[] {
         ) {
           return null;
         }
+        const options = getOptions(env, _options);
+        const generator = getGenerator(options);
 
-        if (options.development && env.command === "serve") {
+        if (_options?.development && env.command === "serve") {
           await generator.install(id);
+          resolvedDeps.push(id);
 
           return {
-            id: generator.resolve(id) as string,
+            id,
             external: true,
           };
         }
@@ -57,7 +107,10 @@ function plugin(_options?: PluginOptions): Plugin[] {
         // NODE_ENV is "production" in `vite build`
         enforce: process.env?.NODE_ENV === "production" ? "post" : "pre",
         async transform(html) {
+          const options = getOptions(env, _options);
+          const generator = getGenerator(options);
           await Promise.all(installPromiseCache);
+          resolvedDeps.length = 0;
           installPromiseCache.length = 0;
 
           return {
