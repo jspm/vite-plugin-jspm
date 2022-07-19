@@ -1,6 +1,7 @@
 # vite-plugin-jspm
 
 > Import maps: a way to control the behavior of JavaScript imports. [WICG/import-maps](https://github.com/WICG/import-maps)
+
 > CDN: A content delivery network (CDN) refers to a geographically distributed group of servers which work together to provide fast delivery of Internet content. [Cloudflare.com](https://www.cloudflare.com/en-ca/learning/cdn/what-is-a-cdn/)
 
 A vite plugin which externalize dependencies and resolves them independently from **CDN (Content Delivery Network) providers** using [import maps](https://github.com/WICG/import-maps) and [es-module-shims](https://github.com/guybedford/es-module-shims)! 
