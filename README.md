@@ -18,6 +18,7 @@ import jspmPlugin from "vite-plugin-jspm";
 export default defineConfig({
   plugins: [
     jspmPlugin({
+      development: true // enables the plugin in `vite dev`
       // optional object for @jspm/generator options and settings, more info in https://github.com/jspm/generator
     }),
   ],
