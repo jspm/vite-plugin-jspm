@@ -1,6 +1,11 @@
 # vite-plugin-jspm
 
-A vite plugin which externalize dependencies and resolves them independently from **CDN providers** using [import maps](https://github.com/WICG/import-maps) and [es-module-shims](https://github.com/guybedford/es-module-shims)!
+> Import maps 
+
+A vite plugin which externalize dependencies and resolves them independently from **CDN (Content Delivery Network) providers** using [import maps](https://github.com/WICG/import-maps) and [es-module-shims](https://github.com/guybedford/es-module-shims)! 
+This plugin generates an import map for your app automatically in both development and production, and resolves dependencies based on that.
+
+It is based on [@jspm/generator](https://github.com/jspm/generator) which supports different providers like *jspm*, *unpkg* and *skypack*.
 
 ```ts
 import { defineConfig } from "vite";
@@ -9,7 +14,7 @@ import jspmPlugin from "vite-plugin-jspm";
 export default defineConfig({
   plugins: [
     jspmPlugin({
-      // optional object for plugin options, more info in https://github.com/jspm/generator
+      // optional object for @jspm/generator options and settings, more info in https://github.com/jspm/generator
     }),
   ],
   // we need to disable vite's default polyfilling, because es-module-shims enables it instead
@@ -31,6 +36,3 @@ dist/index.html                 0.86 KiB
 dist/assets/index.0fb49565.js   0.23 KiB / gzip: 0.15 KiB
 ```
 
-## development 
-
-For now, development is not supported and fails because es-module-shims cannot control modules like `vite/client`.
