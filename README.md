@@ -9,6 +9,8 @@ This plugin generates an import map for your app automatically in both developme
 
 It is based on [@jspm/generator](https://github.com/jspm/generator) which supports different providers like *jspm*, *unpkg* and *skypack*.
 
+## Usage
+
 ```ts
 import { defineConfig } from "vite";
 import jspmPlugin from "vite-plugin-jspm";
@@ -38,3 +40,5 @@ dist/index.html                 0.86 KiB
 dist/assets/index.0fb49565.js   0.23 KiB / gzip: 0.15 KiB
 ```
 
+# Contribution
+Feel free to open issues and PRs!
