@@ -128,7 +128,7 @@ function plugin(_options?: PluginOptions): Plugin[] {
                 tag: "script",
                 attrs: {
                   type: "module",
-                  src: "https://ga.jspm.io/npm:es-module-shims@1.4.1/dist/es-module-shims.js",
+                  src: "https://ga.jspm.io/npm:es-module-shims@1.5.9/dist/es-module-shims.js",
                   async: !(options.development && env.command === "serve"),
                 },
                 injectTo: "head-prepend",
