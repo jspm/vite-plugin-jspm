@@ -1,10 +1,16 @@
 import path from "path";
-import { Generator, GeneratorOptions } from "@jspm/generator";
-import type { ConfigEnv, Plugin, ResolvedConfig } from "vite";
+import { Generator, GeneratorOptions, fetch } from "@jspm/generator";
+import type {
+  ConfigEnv,
+  HtmlTagDescriptor,
+  Plugin,
+  ResolvedConfig,
+} from "vite";
 
 type PluginOptions = GeneratorOptions & {
   development?: boolean;
   strictInputMap?: boolean;
+  downloadDeps?: boolean;
 };
 
 const getDefaultOptions = (env: ConfigEnv): PluginOptions => ({
@@ -69,11 +75,21 @@ function plugin(_options?: PluginOptions): Plugin[] {
           },
         } as Plugin);
       },
-      async resolveId(id, _, ctx) {
+      async resolveId(id, importer, ctx) {
+        const options = getOptions(env, _options);
         if (ctx.ssr) {
           // No plans on getting this working in SSR
           return;
         }
+
+        if (importer?.startsWith("http") && id?.startsWith(".")) {
+          const newPath = new URL(id, importer).toString();
+          if (options?.downloadDeps) {
+            return { id: newPath, external: false };
+          }
+          return { id, external: true };
+        }
+
         if (
           id.startsWith("/") ||
           id.startsWith(".") ||
@@ -82,9 +98,9 @@ function plugin(_options?: PluginOptions): Plugin[] {
           id.includes(".html") ||
           path.isAbsolute(id)
         ) {
-          return null;
+          return;
         }
-        const options = getOptions(env, _options);
+
         // if true and inputMap is defined in jspm options, we skip installing deps
         if (options.strictInputMap && options.inputMap) {
           return {
@@ -105,10 +121,11 @@ function plugin(_options?: PluginOptions): Plugin[] {
           resolvedInInputMap = true;
           resolvedDeps.add(id);
         } catch {
-          return {
-            id,
-            external: true,
-          };
+          proxyImport = generator.importMap.resolve(id, importer);
+          if (options?.downloadDeps) {
+            return { id: proxyImport, external: false };
+          }
+          return { id, external: true };
         }
 
         if (options?.development && env.command === "serve") {
@@ -118,9 +135,16 @@ function plugin(_options?: PluginOptions): Plugin[] {
           }
           resolvedDeps.add(id);
 
+          if (options?.downloadDeps) {
+            return {
+              id: proxyImport,
+              external: false,
+            };
+          }
+
           return {
-            id: proxyImport,
-            external: false,
+            id,
+            external: true,
           };
         }
         if (!resolvedInInputMap) {
@@ -128,9 +152,19 @@ function plugin(_options?: PluginOptions): Plugin[] {
           proxyImport = generator.resolve(id);
         }
 
-        return { id: proxyImport, external: false };
+        if (options?.downloadDeps) {
+          return { id: proxyImport, external: false };
+        }
+
+        return { id, external: true };
       },
       async load(id) {
+        const options = getOptions(env, _options);
+
+        if (!options?.downloadDeps) {
+          return;
+        }
+
         if (id?.startsWith("http")) {
           const code = await (await fetch(id)).text();
           return code;
@@ -148,27 +182,32 @@ function plugin(_options?: PluginOptions): Plugin[] {
           const generator = getGenerator(options);
           resolvedDeps.clear();
 
+          const tags: HtmlTagDescriptor[] = [
+            {
+              tag: "script",
+              attrs: {
+                type: "module",
+                src: "https://ga.jspm.io/npm:es-module-shims@1.5.9/dist/es-module-shims.js",
+                async: !(options.development && env.command === "serve"),
+              },
+              injectTo: "head-prepend",
+            },
+          ];
+
+          if (!options?.downloadDeps) {
+            tags.unshift({
+              tag: "script",
+              attrs: {
+                type: "importmap",
+              },
+              children: JSON.stringify(generator.getMap(), null, 2),
+              injectTo: "head-prepend",
+            });
+          }
+
           return {
             html,
-            tags: [
-              {
-                tag: "script",
-                attrs: {
-                  type: "importmap",
-                },
-                children: JSON.stringify(generator.getMap(), null, 2),
-                injectTo: "head-prepend",
-              },
-              {
-                tag: "script",
-                attrs: {
-                  type: "module",
-                  src: "https://ga.jspm.io/npm:es-module-shims@1.5.9/dist/es-module-shims.js",
-                  async: !(options.development && env.command === "serve"),
-                },
-                injectTo: "head-prepend",
-              },
-            ],
+            tags,
           };
         },
       },
