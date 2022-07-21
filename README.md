@@ -27,7 +27,29 @@ export default defineConfig({
 });
 ```
 
-#### Bundle size
+## Custom options
+
+### `development` 
+enables the plugin in `vite dev`.
+```
+jspmPlugin({
+  development: true
+}),
+```
+
+### `strictInputMap`
+
+> `inputMap`: An existing import map can be passed to the generator with the inputMap option for adding new packages to an existing map or modifying an existing map
+
+If this option is `true` and `inputMap` is defined, we skip installing/resolving dependencies and only dependencies from the `inputMap` would be resolved
+```
+jspmPlugin({
+  inputMap: { ... },
+  strictInputMap: true
+}),
+```
+
+# Bundle size
 
 You can see the bundle size of [`test/basic`](https://github.com/jspm/vite-plugin-jspm/tree/main/test/basic) example in two cases:
 ```
