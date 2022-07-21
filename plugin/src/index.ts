@@ -39,7 +39,7 @@ function getGenerator(options: PluginOptions) {
 function plugin(_options?: PluginOptions): Plugin[] {
   const installPromiseCache: Promise<unknown>[] = [];
   let resolvedConfig: ResolvedConfig;
-  const resolvedDeps: string[] = [];
+  const resolvedDeps: Set<string> = new Set();
   let env: ConfigEnv;
 
   return [
@@ -61,7 +61,7 @@ function plugin(_options?: PluginOptions): Plugin[] {
             }
             const VALID_ID_PREFIX = `/@id/`;
             const resolvedDepsRegex = new RegExp(
-              `${VALID_ID_PREFIX}(${resolvedDeps.join("|")})`,
+              `${VALID_ID_PREFIX}(${[...resolvedDeps].join("|")})`,
               "g"
             );
             return resolvedDepsRegex.test(code)
@@ -102,14 +102,14 @@ function plugin(_options?: PluginOptions): Plugin[] {
         try {
           generator.resolve(id);
           resolvedInInputMap = true;
+          resolvedDeps.add(id);
         } catch {}
 
         if (options?.development && env.command === "serve") {
           if (!resolvedInInputMap) {
             await generator.install(id);
           }
-
-          resolvedDeps.push(id);
+          resolvedDeps.add(id);
 
           return {
             id,
@@ -133,7 +133,7 @@ function plugin(_options?: PluginOptions): Plugin[] {
           const options = getOptions(env, _options);
           const generator = getGenerator(options);
           await Promise.all(installPromiseCache);
-          resolvedDeps.length = 0;
+          resolvedDeps.clear()
           installPromiseCache.length = 0;
 
           return {
