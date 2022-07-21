@@ -4,6 +4,7 @@ import type { ConfigEnv, Plugin, ResolvedConfig } from "vite";
 
 type PluginOptions = GeneratorOptions & {
   development?: boolean;
+  strictInputMap?: boolean;
 };
 
 const getDefaultOptions = (env: ConfigEnv): PluginOptions => ({
@@ -85,7 +86,14 @@ function plugin(_options?: PluginOptions): Plugin[] {
           return null;
         }
         const options = getOptions(env, _options);
-        console.log(options);
+        // if true and inputMap is defined in jspm options, we skip installing deps
+        if (options.strictInputMap && options.inputMap) {
+          return {
+            id,
+            external: true,
+          };
+        }
+
         const generator = getGenerator(options);
 
         // if the module is resolved, ignore it, for cases like when inputMap
@@ -96,10 +104,7 @@ function plugin(_options?: PluginOptions): Plugin[] {
           resolvedInInputMap = true;
         } catch {}
 
-        if (
-          _options?.development &&
-          env.command === "serve"
-        ) {
+        if (options?.development && env.command === "serve") {
           if (!resolvedInInputMap) {
             await generator.install(id);
           }
@@ -114,7 +119,6 @@ function plugin(_options?: PluginOptions): Plugin[] {
         if (!resolvedInInputMap) {
           installPromiseCache.push(generator.install(id));
         }
-
 
         return { id, external: true };
       },
@@ -161,3 +165,4 @@ function plugin(_options?: PluginOptions): Plugin[] {
 }
 
 export default plugin;
+export { __generator as generator };
