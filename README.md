@@ -31,7 +31,7 @@ export default defineConfig({
 
 ### `development` 
 enables the plugin in `vite dev`.
-```
+```ts
 jspmPlugin({
   development: true
 }),
@@ -42,7 +42,7 @@ jspmPlugin({
 > `inputMap`: An existing import map can be passed to the generator with the inputMap option for adding new packages to an existing map or modifying an existing map
 
 If this option is `true` and `inputMap` is defined, we skip installing/resolving dependencies and only dependencies from the `inputMap` would be resolved
-```
+```ts
 jspmPlugin({
   inputMap: { ... },
   strictInputMap: true
