@@ -37,7 +37,6 @@ function getGenerator(options: PluginOptions) {
 }
 
 function plugin(_options?: PluginOptions): Plugin[] {
-  const installPromiseCache: Promise<unknown>[] = [];
   let resolvedConfig: ResolvedConfig;
   const resolvedDeps: Set<string> = new Set();
   let env: ConfigEnv;
@@ -99,28 +98,43 @@ function plugin(_options?: PluginOptions): Plugin[] {
         // if the module is resolved, ignore it, for cases like when inputMap
         // option of jspm is used
         let resolvedInInputMap = false;
+        let proxyImport;
+
         try {
-          generator.resolve(id);
+          proxyImport = generator.resolve(id);
           resolvedInInputMap = true;
           resolvedDeps.add(id);
-        } catch {}
-
-        if (options?.development && env.command === "serve") {
-          if (!resolvedInInputMap) {
-            await generator.install(id);
-          }
-          resolvedDeps.add(id);
-
+        } catch {
           return {
             id,
             external: true,
           };
         }
+
+        if (options?.development && env.command === "serve") {
+          if (!resolvedInInputMap) {
+            await generator.install(id);
+            proxyImport = generator.resolve(id);
+          }
+          resolvedDeps.add(id);
+
+          return {
+            id: proxyImport,
+            external: false,
+          };
+        }
         if (!resolvedInInputMap) {
-          installPromiseCache.push(generator.install(id));
+          await generator.install(id);
+          proxyImport = generator.resolve(id);
         }
 
-        return { id, external: true };
+        return { id: proxyImport, external: false };
+      },
+      async load(id) {
+        if (id?.startsWith("http")) {
+          const code = await (await fetch(id)).text();
+          return code;
+        }
       },
     },
     {
@@ -132,9 +146,7 @@ function plugin(_options?: PluginOptions): Plugin[] {
         async transform(html) {
           const options = getOptions(env, _options);
           const generator = getGenerator(options);
-          await Promise.all(installPromiseCache);
-          resolvedDeps.clear()
-          installPromiseCache.length = 0;
+          resolvedDeps.clear();
 
           return {
             html,
