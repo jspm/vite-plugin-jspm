@@ -74,7 +74,6 @@ function plugin(_options?: PluginOptions): Plugin[] {
           // No plans on getting this working in SSR
           return;
         }
-        console.log(id)
         if (
           id.startsWith("/") ||
           id.startsWith(".") ||
@@ -86,10 +85,25 @@ function plugin(_options?: PluginOptions): Plugin[] {
           return null;
         }
         const options = getOptions(env, _options);
+        console.log(options);
         const generator = getGenerator(options);
 
-        if (_options?.development && env.command === "serve") {
-          await generator.install(id);
+        // if the module is resolved, ignore it, for cases like when inputMap
+        // option of jspm is used
+        let resolvedInInputMap = false;
+        try {
+          generator.resolve(id);
+          resolvedInInputMap = true;
+        } catch {}
+
+        if (
+          _options?.development &&
+          env.command === "serve"
+        ) {
+          if (!resolvedInInputMap) {
+            await generator.install(id);
+          }
+
           resolvedDeps.push(id);
 
           return {
@@ -97,7 +111,10 @@ function plugin(_options?: PluginOptions): Plugin[] {
             external: true,
           };
         }
-        installPromiseCache.push(generator.install(id));
+        if (!resolvedInInputMap) {
+          installPromiseCache.push(generator.install(id));
+        }
+
 
         return { id, external: true };
       },
