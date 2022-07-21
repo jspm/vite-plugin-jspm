@@ -74,9 +74,11 @@ function plugin(_options?: PluginOptions): Plugin[] {
           // No plans on getting this working in SSR
           return;
         }
+        console.log(id)
         if (
           id.startsWith("/") ||
           id.startsWith(".") ||
+          id.startsWith("vite/") ||
           id.includes(".css") ||
           id.includes(".html") ||
           path.isAbsolute(id)
