@@ -101,20 +101,31 @@ function plugin(_options?: PluginOptions): Plugin[] {
           return;
         }
 
-        // if true and inputMap is defined in jspm options, we skip installing deps
-        if (options.strictInputMap && options.inputMap) {
-          return {
-            id,
-            external: true,
-          };
-        }
-
         const generator = getGenerator(options);
 
         // if the module is resolved, ignore it, for cases like when inputMap
         // option of jspm is used
         let resolvedInInputMap = false;
         let proxyImport;
+
+        // if true and inputMap is defined in jspm options, we skip installing deps
+        if (options.strictInputMap && options.inputMap) {
+          if (options?.downloadDeps) {
+            try {
+              proxyImport = generator.resolve(id);
+              resolvedDeps.add(id);
+              return { id: proxyImport, external: false };
+            } catch {
+              proxyImport = generator.importMap.resolve(id, importer);
+              return { id: proxyImport, external: false };
+            }
+          }
+
+          return {
+            id,
+            external: true,
+          };
+        }
 
         try {
           proxyImport = generator.resolve(id);
@@ -152,7 +163,7 @@ function plugin(_options?: PluginOptions): Plugin[] {
           proxyImport = generator.resolve(id);
         }
 
-        if (options?.downloadDeps) {
+        if (options?.downloadDeps && process.env?.NODE_ENV === "production") {
           return { id: proxyImport, external: false };
         }
 
@@ -194,7 +205,10 @@ function plugin(_options?: PluginOptions): Plugin[] {
             },
           ];
 
-          if (!options?.downloadDeps) {
+          if (
+            !options?.downloadDeps ||
+            process.env?.NODE_ENV !== "production"
+          ) {
             tags.unshift({
               tag: "script",
               attrs: {
