@@ -116,8 +116,10 @@ function plugin(_options?: PluginOptions): Plugin[] {
               resolvedDeps.add(id);
               return { id: proxyImport, external: false };
             } catch {
-              proxyImport = generator.importMap.resolve(id, importer);
-              return { id: proxyImport, external: false };
+              if (importer?.startsWith("http")) {
+                proxyImport = generator.importMap.resolve(id, importer);
+                return { id: proxyImport, external: false };
+              }
             }
           }
 
@@ -132,11 +134,12 @@ function plugin(_options?: PluginOptions): Plugin[] {
           resolvedInInputMap = true;
           resolvedDeps.add(id);
         } catch {
-          proxyImport = generator.importMap.resolve(id, importer);
-          if (options?.downloadDeps) {
-            return { id: proxyImport, external: false };
+          if (importer?.startsWith("http")) {
+            proxyImport = generator.importMap.resolve(id, importer);
+            if (options?.downloadDeps) {
+              return { id: proxyImport, external: false };
+            }
           }
-          return { id, external: true };
         }
 
         if (options?.development && env.command === "serve") {
