@@ -30,10 +30,10 @@ export default defineConfig({
 ## Custom options
 
 ### `development` 
-enables the plugin in `vite dev`.
+enables the plugin in `vite dev`. If `false`, the plugin would only work in `vite build`!
 ```ts
 jspmPlugin({
-  development: true
+  development: true // default is true
 }),
 ```
 
