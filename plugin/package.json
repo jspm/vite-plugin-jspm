@@ -38,7 +38,7 @@
     "vite": "^2.9.5"
   },
   "dependencies": {
-    "@jspm/generator": "1.0.0-beta.30"
+    "@jspm/generator": "1.0.0-beta.33"
   },
   "peerDependencies": {
     "vite": "*"

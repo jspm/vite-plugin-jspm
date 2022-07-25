@@ -43,13 +43,14 @@ function getGenerator(options: PluginOptions) {
 }
 
 function plugin(_options?: PluginOptions): Plugin[] {
+  let env: ConfigEnv;
   let resolvedConfig: ResolvedConfig;
   const resolvedDeps: Set<string> = new Set();
-  let env: ConfigEnv;
+  const installPromiseCache: Promise<unknown>[] = [];
 
   return [
     {
-      name: "jspm:pre",
+      name: "jspm:imports-scan",
       enforce: "pre",
       config(_config, _env) {
         env = _env;
@@ -79,15 +80,7 @@ function plugin(_options?: PluginOptions): Plugin[] {
         const options = getOptions(env, _options);
         if (ctx.ssr) {
           // No plans on getting this working in SSR
-          return;
-        }
-
-        if (importer?.startsWith("http") && id?.startsWith(".")) {
-          const newPath = new URL(id, importer).toString();
-          if (options?.downloadDeps) {
-            return { id: newPath, external: false };
-          }
-          return { id, external: true };
+          return null;
         }
 
         if (
@@ -102,87 +95,77 @@ function plugin(_options?: PluginOptions): Plugin[] {
         }
 
         const generator = getGenerator(options);
-
-        // if the module is resolved, ignore it, for cases like when inputMap
-        // option of jspm is used
-        let resolvedInInputMap = false;
-        let proxyImport;
-
-        // if true and inputMap is defined in jspm options, we skip installing deps
-        if (options.strictInputMap && options.inputMap) {
-          if (options?.downloadDeps) {
-            try {
-              proxyImport = generator.resolve(id);
-              resolvedDeps.add(id);
-              return { id: proxyImport, external: false };
-            } catch {
-              if (importer?.startsWith("http")) {
-                proxyImport = generator.importMap.resolve(id, importer);
-                return { id: proxyImport, external: false };
-              }
-            }
+        try {
+          generator.resolve(id);
+        } catch {
+          if (importer?.startsWith("http")) {
+            return;
           }
+          installPromiseCache.push(generator.install(`${id}@latest`));
+        }
 
-          return {
-            id,
-            external: true,
-          };
+        return;
+      },
+    },
+    {
+      name: "jspm:import-mapping",
+      enforce: "post",
+      async resolveId(id, importer, ctx) {
+        if (ctx?.ssr) {
+          return null;
+        }
+
+        const options = getOptions(env, _options);
+        const generator = getGenerator(options);
+        let proxyPath;
+        await Promise.all(installPromiseCache);
+
+        if (id.startsWith("vite/") || path.isAbsolute(id)) {
+          return;
+        }
+
+        if (importer?.startsWith("http") && id?.startsWith(".")) {
+          proxyPath = new URL(id, importer).toString();
+          if (options?.downloadDeps) {
+            return { id: proxyPath, external: false };
+          }
+          return { id, external: true };
         }
 
         try {
-          proxyImport = generator.resolve(id);
-          resolvedInInputMap = true;
+          proxyPath = generator.resolve(id);
           resolvedDeps.add(id);
-        } catch {
+        } catch (e) {
           if (importer?.startsWith("http")) {
-            proxyImport = generator.importMap.resolve(id, importer);
+            proxyPath = generator.importMap.resolve(id, importer);
+            resolvedDeps.add(id);
             if (options?.downloadDeps) {
-              return { id: proxyImport, external: false };
+              return { id: proxyPath, external: false };
             }
+            return { id, external: true };
           }
         }
 
-        if (options?.development && env.command === "serve") {
-          if (!resolvedInInputMap) {
-            await generator.install(id);
-            proxyImport = generator.resolve(id);
-          }
-          resolvedDeps.add(id);
-
-          if (options?.downloadDeps) {
-            return {
-              id: proxyImport,
-              external: false,
-            };
-          }
-
-          return {
-            id,
-            external: true,
-          };
-        }
-        if (!resolvedInInputMap) {
-          await generator.install(id);
-          proxyImport = generator.resolve(id);
-        }
-
-        if (options?.downloadDeps && process.env?.NODE_ENV === "production") {
-          return { id: proxyImport, external: false };
+        if (options?.downloadDeps) {
+          return { id: proxyPath, external: false };
         }
 
         return { id, external: true };
       },
       async load(id) {
-        const options = getOptions(env, _options);
-
-        if (!options?.downloadDeps) {
+        if (id.startsWith("vite/")) {
           return;
         }
 
-        if (id?.startsWith("http")) {
+        console.log(id);
+
+        const options = getOptions(env, _options);
+        if (options?.downloadDeps && id?.startsWith("http")) {
           const code = await (await fetch(id)).text();
           return code;
         }
+
+        return;
       },
     },
     {
@@ -209,6 +192,7 @@ function plugin(_options?: PluginOptions): Plugin[] {
           ];
 
           if (
+            // only when we are in development or non-downloadDeps (prod-dev)
             !options?.downloadDeps ||
             process.env?.NODE_ENV !== "production"
           ) {

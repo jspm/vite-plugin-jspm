@@ -36,18 +36,18 @@ importers:
       rollup-plugin-esbuild: 4.9.1_5lmlfq4xy2rnij2qmg2fieshni
       typescript: 4.7.4
       vite: 2.9.5
-      vitest: 0.18.1
+      vitest: 0.19.1
 
   plugin:
     specifiers:
-      '@jspm/generator': 1.0.0-beta.30
+      '@jspm/generator': 1.0.0-beta.33
       '@vue/compiler-core': ^3.2.31
       '@vue/compiler-dom': ^3.2.31
       node-fetch: ^3.2.3
       typescript: ^4.5.3
       vite: ^2.9.5
     dependencies:
-      '@jspm/generator': 1.0.0-beta.30_node-fetch@3.2.9
+      '@jspm/generator': 1.0.0-beta.33_lbmoe6rsqoofnmyaqgwh7zxhmq
     devDependencies:
       '@vue/compiler-core': 3.2.37
       '@vue/compiler-dom': 3.2.37
@@ -293,6 +293,16 @@ packages:
     dependencies:
       '@babel/types': 7.18.9
 
+  /@babel/plugin-syntax-import-assertions/7.18.6_@babel+core@7.18.9:
+    resolution: {integrity: sha512-/DU3RXad9+bZwrgWJQKbr39gYbJpLJHezqEzRzi/BHRlJ9zsQb4CK2CA/5apllXNomwA1qHwzvHl+AdEmC5krQ==}
+    engines: {node: '>=6.9.0'}
+    peerDependencies:
+      '@babel/core': ^7.0.0-0
+    dependencies:
+      '@babel/core': 7.18.9
+      '@babel/helper-plugin-utils': 7.18.9
+    dev: false
+
   /@babel/plugin-syntax-typescript/7.18.6_@babel+core@7.18.9:
     resolution: {integrity: sha512-mAWAuq4rvOepWCBid55JuRNvpTNf2UGVgoz4JV0fXEKolsVZDzsa4NqCef758WZJj/GDu0gVGItjKFiClTAmZA==}
     engines: {node: '>=6.9.0'}
@@ -369,12 +379,13 @@ packages:
     resolution: {integrity: sha512-k2Ty1JcVojjJFwrg/ThKi2ujJ7XNLYaFGNB/bWT9wGR+oSMJHMa5w+CUq6p/pVrKeNNgA7pCqEcjSnHVoqJQFw==}
     dev: false
 
-  /@improbable-eng/grpc-web/0.14.1:
+  /@improbable-eng/grpc-web/0.14.1_google-protobuf@3.20.1:
     resolution: {integrity: sha512-XaIYuunepPxoiGVLLHmlnVminUGzBTnXr8Wv7khzmLWbNw4TCwJKX09GSMJlKhu/TRk6gms0ySFxewaETSBqgw==}
     peerDependencies:
       google-protobuf: ^3.14.0
     dependencies:
       browser-headers: 0.4.1
+      google-protobuf: 3.20.1
     dev: false
 
   /@ipld/dag-cbor/6.0.15:
@@ -446,18 +457,18 @@ packages:
     resolution: {integrity: sha512-a4Bo/80Z6CoJNor5ldgs6002utmmbttP4JYd/FJ0Ob2fVdf6O6ha5SORBCqrnDnBvMc1TlrHY7dCfat5+H0a6A==}
     dev: false
 
-  /@jspm/generator/1.0.0-beta.30_node-fetch@3.2.9:
-    resolution: {integrity: sha512-cXl1UqKVo8k+tJPrUAHNy6imgzo1+fYY82uOOq7MOHR/TJ8B0KY8m5xxh14KlW3CONEpkpqcHngX/Sk39VH5VQ==}
+  /@jspm/generator/1.0.0-beta.33_lbmoe6rsqoofnmyaqgwh7zxhmq:
+    resolution: {integrity: sha512-NY9QXpCTb8/lzLe0jd03mihOOgHC8JVawiFJiIv9VysP2+VoLik5NzwNO4zzzKpCyZGHrsUlYgsTFTGpFJfjCw==}
     dependencies:
       '@babel/core': 7.18.9
+      '@babel/plugin-syntax-import-assertions': 7.18.6_@babel+core@7.18.9
       '@babel/preset-typescript': 7.18.6_@babel+core@7.18.9
       '@jspm/core': 2.0.0-beta.24
       '@jspm/import-map': 0.3.3
       es-module-lexer: 0.10.5
-      ipfs-client: 0.7.9_node-fetch@3.2.9
+      ipfs-client: 0.7.9_lbmoe6rsqoofnmyaqgwh7zxhmq
       make-fetch-happen: 8.0.14
       sver: 1.8.3
-      typescript: 4.7.4
     transitivePeerDependencies:
       - bluebird
       - bufferutil
@@ -1399,6 +1410,10 @@ packages:
     engines: {node: '>=4'}
     dev: false
 
+  /google-protobuf/3.20.1:
+    resolution: {integrity: sha512-XMf1+O32FjYIV3CYu6Tuh5PNbfNEU5Xu22X+Xkdb/DUexFlCzhvv7d5Iirm4AOwn8lv4al1YvIhzGrg2j9Zfzw==}
+    dev: false
+
   /has-flag/3.0.0:
     resolution: {integrity: sha512-sKJf1+ceQBr4SMkvQnBDNDtf4TXpVhVGateu0t918bl30FnbE2m4vNLX+VWe/dpjlb+HugGYzW7uQXH98HPEYw==}
     engines: {node: '>=4'}
@@ -1501,10 +1516,10 @@ packages:
     resolution: {integrity: sha512-WKa+XuLG1A1R0UWhl2+1XQSi+fZWMsYKffMZTTYsiZaUD8k2yDAj5atimTUD2TZkyCkNEeYE5NhFZmupOGtjYQ==}
     dev: false
 
-  /ipfs-client/0.7.9_node-fetch@3.2.9:
+  /ipfs-client/0.7.9_lbmoe6rsqoofnmyaqgwh7zxhmq:
     resolution: {integrity: sha512-0LppTlQ5VO/fos0rSOyvhbXdgnqd6BTmGVsTkxX4Q2AiFHtjTO1KyE4TwgqIEpA6qUqPHHIrcxvDqR8GFAvrdw==}
     dependencies:
-      ipfs-grpc-client: 0.9.4_node-fetch@3.2.9
+      ipfs-grpc-client: 0.9.4_lbmoe6rsqoofnmyaqgwh7zxhmq
       ipfs-http-client: 56.0.3_node-fetch@3.2.9
       merge-options: 3.0.4
     transitivePeerDependencies:
@@ -1556,10 +1571,10 @@ packages:
       - supports-color
     dev: false
 
-  /ipfs-grpc-client/0.9.4_node-fetch@3.2.9:
+  /ipfs-grpc-client/0.9.4_lbmoe6rsqoofnmyaqgwh7zxhmq:
     resolution: {integrity: sha512-YWTNSs4HlxJSmoYqgZquPZKKvTpFMYHV959WBjAbvKTFOLX4Vp5YBfWYPoE/cxKPhsYEAKj8k9jhS29bHcSBUA==}
     dependencies:
-      '@improbable-eng/grpc-web': 0.14.1
+      '@improbable-eng/grpc-web': 0.14.1_google-protobuf@3.20.1
       change-case: 4.1.2
       debug: 4.3.4
       err-code: 3.0.1
@@ -2537,6 +2552,7 @@ packages:
     resolution: {integrity: sha512-C0WQT0gezHuw6AdY1M2jxUO83Rjf0HP7Sk1DtXj6j1EwkQNZrHAg2XPWlq62oqEhYvONq5pkC2Y9oPljWToLmQ==}
     engines: {node: '>=4.2.0'}
     hasBin: true
+    dev: true
 
   /uint8arrays/3.0.0:
     resolution: {integrity: sha512-HRCx0q6O9Bfbp+HHSfQQKD7wU70+lydKVt4EghkdOvlK/NlrF90z+eXV34mUd48rNvVJXwkrMSPpCATkct8fJA==}
@@ -2641,18 +2657,21 @@ packages:
       fsevents: 2.3.2
     dev: true
 
-  /vitest/0.18.1:
-    resolution: {integrity: sha512-4F/1K/Vn4AvJwe7i2YblR02PT5vMKcw9KN4unDq2KD0YcSxX0B/6D6Qu9PJaXwVuxXMFTQ5ovd4+CQaW3bwofA==}
+  /vitest/0.19.1:
+    resolution: {integrity: sha512-E/ZXpFMUahn731wzhMBNzWRp4mGgiZFT0xdHa32cbNO0CSaHpE9hTfteEU247Gi2Dula8uXo5vvrNB6dtszmQA==}
     engines: {node: '>=v14.16.0'}
     hasBin: true
     peerDependencies:
       '@edge-runtime/vm': '*'
+      '@vitest/browser': '*'
       '@vitest/ui': '*'
       c8: '*'
       happy-dom: '*'
       jsdom: '*'
     peerDependenciesMeta:
       '@edge-runtime/vm':
+        optional: true
+      '@vitest/browser':
         optional: true
       '@vitest/ui':
         optional: true

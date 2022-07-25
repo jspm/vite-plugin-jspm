@@ -5,7 +5,7 @@ import { describe, afterAll, beforeAll, expect, test } from "vitest";
 const sleep = (num: number) => new Promise((res) => setTimeout(res, num));
 const url = "http://localhost:3000";
 
-describe("dev", async () => {
+describe("Dev with downloadDeps options", async () => {
   let server: ViteDevServer;
 
   let browser: puppeteer.Browser;
@@ -13,7 +13,7 @@ describe("dev", async () => {
 
   beforeAll(async () => {
     server = await createServer({
-      configFile: "./vite.config.ts",
+      configFile: "./vite-download.config.ts",
       server: { port: 3000 },
     });
     server.printUrls();
@@ -23,11 +23,10 @@ describe("dev", async () => {
     page = await browser.newPage();
   });
 
-  // in dev, page should just render
-  test("basic render", async () => {
+  test("Loads the deps from CDN, even if downdloadDeps is passed", async () => {
     await page.goto(url);
     await sleep(500);
-    expect(await page.content()).toContain("<h1>Hello, world!</h1>");
+    expect(await page.content()).toContain("Hello, world!");
   });
 
   afterAll(async () => {
