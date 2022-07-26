@@ -1,9 +1,9 @@
 import puppeteer from "puppeteer";
 import { createServer, ViteDevServer } from "vite";
 import { describe, afterAll, beforeAll, expect, test } from "vitest";
+import { sleep } from "./utils";
 
-const sleep = (num: number) => new Promise((res) => setTimeout(res, num));
-const url = "http://localhost:3000";
+const url = "http://localhost:3001";
 
 describe("dev", async () => {
   let server: ViteDevServer;
@@ -14,7 +14,7 @@ describe("dev", async () => {
   beforeAll(async () => {
     server = await createServer({
       configFile: "./vite.config.ts",
-      server: { port: 3000 },
+      server: { port: 3001 },
     });
     server.printUrls();
     await server.listen();
@@ -27,6 +27,7 @@ describe("dev", async () => {
   test("basic render", async () => {
     await page.goto(url);
     await sleep(500);
+
     expect(await page.content()).toContain("<h1>Hello, world!</h1>");
   });
 

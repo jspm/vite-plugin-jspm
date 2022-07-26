@@ -1,6 +1,7 @@
 import puppeteer from "puppeteer";
 import { build, preview, PreviewServer } from "vite";
 import { describe, afterAll, beforeAll, expect, test } from "vitest";
+import { sleep } from "./utils";
 
 const url = "http://localhost:3000";
 
@@ -24,6 +25,8 @@ describe("build", async () => {
 
   test("basic render", async () => {
     await page.goto(url);
+    await sleep(500);
+
     expect(await page.content()).toContain("Hello, world!");
   });
 

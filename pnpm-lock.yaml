@@ -47,7 +47,7 @@ importers:
       typescript: ^4.5.3
       vite: ^2.9.5
     dependencies:
-      '@jspm/generator': 1.0.0-beta.33_lbmoe6rsqoofnmyaqgwh7zxhmq
+      '@jspm/generator': 1.0.0-beta.33_node-fetch@3.2.9
     devDependencies:
       '@vue/compiler-core': 3.2.37
       '@vue/compiler-dom': 3.2.37
@@ -57,17 +57,9 @@ importers:
 
   test/basic:
     specifiers:
-      '@types/react': ^17.0.40
-      '@types/react-dom': ^17.0.13
-      react: ^17.0.2
-      react-dom: ^17.0.2
       vite: ^2.9.5
       vite-plugin-jspm: workspace:latest
     dependencies:
-      '@types/react': 17.0.40
-      '@types/react-dom': 17.0.13
-      react: 17.0.2
-      react-dom: 17.0.2_react@17.0.2
       vite-plugin-jspm: link:../../plugin
     devDependencies:
       vite: 2.9.5
@@ -379,13 +371,12 @@ packages:
     resolution: {integrity: sha512-k2Ty1JcVojjJFwrg/ThKi2ujJ7XNLYaFGNB/bWT9wGR+oSMJHMa5w+CUq6p/pVrKeNNgA7pCqEcjSnHVoqJQFw==}
     dev: false
 
-  /@improbable-eng/grpc-web/0.14.1_google-protobuf@3.20.1:
+  /@improbable-eng/grpc-web/0.14.1:
     resolution: {integrity: sha512-XaIYuunepPxoiGVLLHmlnVminUGzBTnXr8Wv7khzmLWbNw4TCwJKX09GSMJlKhu/TRk6gms0ySFxewaETSBqgw==}
     peerDependencies:
       google-protobuf: ^3.14.0
     dependencies:
       browser-headers: 0.4.1
-      google-protobuf: 3.20.1
     dev: false
 
   /@ipld/dag-cbor/6.0.15:
@@ -457,7 +448,7 @@ packages:
     resolution: {integrity: sha512-a4Bo/80Z6CoJNor5ldgs6002utmmbttP4JYd/FJ0Ob2fVdf6O6ha5SORBCqrnDnBvMc1TlrHY7dCfat5+H0a6A==}
     dev: false
 
-  /@jspm/generator/1.0.0-beta.33_lbmoe6rsqoofnmyaqgwh7zxhmq:
+  /@jspm/generator/1.0.0-beta.33_node-fetch@3.2.9:
     resolution: {integrity: sha512-NY9QXpCTb8/lzLe0jd03mihOOgHC8JVawiFJiIv9VysP2+VoLik5NzwNO4zzzKpCyZGHrsUlYgsTFTGpFJfjCw==}
     dependencies:
       '@babel/core': 7.18.9
@@ -466,7 +457,7 @@ packages:
       '@jspm/core': 2.0.0-beta.24
       '@jspm/import-map': 0.3.3
       es-module-lexer: 0.10.5
-      ipfs-client: 0.7.9_lbmoe6rsqoofnmyaqgwh7zxhmq
+      ipfs-client: 0.7.9_node-fetch@3.2.9
       make-fetch-happen: 8.0.14
       sver: 1.8.3
     transitivePeerDependencies:
@@ -644,33 +635,11 @@ packages:
   /@types/node/18.0.0:
     resolution: {integrity: sha512-cHlGmko4gWLVI27cGJntjs/Sj8th9aYwplmZFwmmgYQQvL5NUsgVJG7OddLvNfLqYS31KFN0s3qlaD9qCaxACA==}
 
-  /@types/prop-types/15.7.4:
-    resolution: {integrity: sha512-rZ5drC/jWjrArrS8BR6SIr4cWpW09RNTYt9AMZo3Jwwif+iacXAqgVjm0B0Bv/S1jhDXKHqRVNCbACkJ89RAnQ==}
-    dev: false
-
-  /@types/react-dom/17.0.13:
-    resolution: {integrity: sha512-wEP+B8hzvy6ORDv1QBhcQia4j6ea4SFIBttHYpXKPFZRviBvknq0FRh3VrIxeXUmsPkwuXVZrVGG7KUVONmXCQ==}
-    dependencies:
-      '@types/react': 17.0.40
-    dev: false
-
-  /@types/react/17.0.40:
-    resolution: {integrity: sha512-UrXhD/JyLH+W70nNSufXqMZNuUD2cXHu6UjCllC6pmOQgBX4SGXOH8fjRka0O0Ee0HrFxapDD8Bwn81Kmiz6jQ==}
-    dependencies:
-      '@types/prop-types': 15.7.4
-      '@types/scheduler': 0.16.2
-      csstype: 3.0.11
-    dev: false
-
   /@types/resolve/1.17.1:
     resolution: {integrity: sha512-yy7HuzQhj0dhGpD8RLXSZWEkLsV9ibvxvi6EiJ3bkqLAO1RGo0WbkWQiwpRlSFymTJRz0d3k5LM3kkx8ArDbLw==}
     dependencies:
       '@types/node': 18.0.0
     dev: true
-
-  /@types/scheduler/0.16.2:
-    resolution: {integrity: sha512-hppQEBDmlwhFAXKJX2KnWLYu5yMfi91yazPb2l+lbJiwW+wdo1gNeRA+3RgNSO39WYX2euey41KEwnqesU2Jew==}
-    dev: false
 
   /@types/yauzl/2.10.0:
     resolution: {integrity: sha512-Cn6WYCm0tXv8p6k+A8PvbDG763EDpBoTzHdA+Q/MF6H3sapGjCm9NzoaJncJS9tUKSuCoDs9XHxYYsQDgxR6kw==}
@@ -968,10 +937,6 @@ packages:
       shebang-command: 2.0.0
       which: 2.0.2
     dev: true
-
-  /csstype/3.0.11:
-    resolution: {integrity: sha512-sa6P2wJ+CAbgyy4KFssIb/JNMLxFvKF1pCYCSXS8ZMuqZnMsrxqI2E5sPyoTpxoPU/gVZMzr2zjOfg8GIZOMsw==}
-    dev: false
 
   /dag-jose/1.0.0:
     resolution: {integrity: sha512-U0b/YsIPBp6YZNTFrVjwLZAlY3qGRxZTIEcM/CcQmrVrCWq9MWQq9pheXVSPLIhF4SNwzp2SikPva4/BIrJY+g==}
@@ -1410,10 +1375,6 @@ packages:
     engines: {node: '>=4'}
     dev: false
 
-  /google-protobuf/3.20.1:
-    resolution: {integrity: sha512-XMf1+O32FjYIV3CYu6Tuh5PNbfNEU5Xu22X+Xkdb/DUexFlCzhvv7d5Iirm4AOwn8lv4al1YvIhzGrg2j9Zfzw==}
-    dev: false
-
   /has-flag/3.0.0:
     resolution: {integrity: sha512-sKJf1+ceQBr4SMkvQnBDNDtf4TXpVhVGateu0t918bl30FnbE2m4vNLX+VWe/dpjlb+HugGYzW7uQXH98HPEYw==}
     engines: {node: '>=4'}
@@ -1516,10 +1477,10 @@ packages:
     resolution: {integrity: sha512-WKa+XuLG1A1R0UWhl2+1XQSi+fZWMsYKffMZTTYsiZaUD8k2yDAj5atimTUD2TZkyCkNEeYE5NhFZmupOGtjYQ==}
     dev: false
 
-  /ipfs-client/0.7.9_lbmoe6rsqoofnmyaqgwh7zxhmq:
+  /ipfs-client/0.7.9_node-fetch@3.2.9:
     resolution: {integrity: sha512-0LppTlQ5VO/fos0rSOyvhbXdgnqd6BTmGVsTkxX4Q2AiFHtjTO1KyE4TwgqIEpA6qUqPHHIrcxvDqR8GFAvrdw==}
     dependencies:
-      ipfs-grpc-client: 0.9.4_lbmoe6rsqoofnmyaqgwh7zxhmq
+      ipfs-grpc-client: 0.9.4_node-fetch@3.2.9
       ipfs-http-client: 56.0.3_node-fetch@3.2.9
       merge-options: 3.0.4
     transitivePeerDependencies:
@@ -1571,10 +1532,10 @@ packages:
       - supports-color
     dev: false
 
-  /ipfs-grpc-client/0.9.4_lbmoe6rsqoofnmyaqgwh7zxhmq:
+  /ipfs-grpc-client/0.9.4_node-fetch@3.2.9:
     resolution: {integrity: sha512-YWTNSs4HlxJSmoYqgZquPZKKvTpFMYHV959WBjAbvKTFOLX4Vp5YBfWYPoE/cxKPhsYEAKj8k9jhS29bHcSBUA==}
     dependencies:
-      '@improbable-eng/grpc-web': 0.14.1_google-protobuf@3.20.1
+      '@improbable-eng/grpc-web': 0.14.1
       change-case: 4.1.2
       debug: 4.3.4
       err-code: 3.0.1
@@ -1790,13 +1751,6 @@ packages:
 
   /long/4.0.0:
     resolution: {integrity: sha512-XsP+KhQif4bjX1kbuSiySJFNAehNxgLb6hPRGJ9QsUr8ajHkuXGdrHmFUTUUXhDwVX2R5bY4JNZEwbUiMhV+MA==}
-    dev: false
-
-  /loose-envify/1.4.0:
-    resolution: {integrity: sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==}
-    hasBin: true
-    dependencies:
-      js-tokens: 4.0.0
     dev: false
 
   /loupe/2.3.4:
@@ -2023,11 +1977,6 @@ packages:
     resolution: {integrity: sha512-PiVXnNuFm5+iYkLBNeq5211hvO38y63T0i2KKh2KnUs3RpzJ+JtODFjkD8yjLwnDkTYF1eKXheUwdssR+NRZdg==}
     dev: false
 
-  /object-assign/4.1.1:
-    resolution: {integrity: sha1-IQmtx5ZYh8/AXLvUQsrIv7s2CGM=}
-    engines: {node: '>=0.10.0'}
-    dev: false
-
   /once/1.4.0:
     resolution: {integrity: sha512-lNaJgI+2Q5URQBkccEKHTQOPaXdUxnZZElQTZY0MFUAuaEqe1E+Nyvgdz/aIyNi6Z9MzO5dv1H8n58/GELp3+w==}
     dependencies:
@@ -2232,29 +2181,10 @@ packages:
       - utf-8-validate
     dev: true
 
-  /react-dom/17.0.2_react@17.0.2:
-    resolution: {integrity: sha512-s4h96KtLDUQlsENhMn1ar8t2bEa+q/YAtj8pPPdIjPDGBDIVNsrD9aXNWqspUe6AzKCIG0C1HZZLqLV7qpOBGA==}
-    peerDependencies:
-      react: 17.0.2
-    dependencies:
-      loose-envify: 1.4.0
-      object-assign: 4.1.1
-      react: 17.0.2
-      scheduler: 0.20.2
-    dev: false
-
   /react-native-fetch-api/2.0.0:
     resolution: {integrity: sha512-GOA8tc1EVYLnHvma/TU9VTgLOyralO7eATRuCDchQveXW9Fr9vXygyq9iwqmM7YRZ8qRJfEt9xOS7OYMdJvRFw==}
     dependencies:
       p-defer: 3.0.0
-    dev: false
-
-  /react/17.0.2:
-    resolution: {integrity: sha512-gnhPt75i/dq/z3/6q/0asP78D0u592D5L1pd7M8P+dck6Fu/jJeL6iVVK23fptSUZj8Vjf++7wXA8UNclGQcbA==}
-    engines: {node: '>=0.10.0'}
-    dependencies:
-      loose-envify: 1.4.0
-      object-assign: 4.1.1
     dev: false
 
   /readable-stream/3.6.0:
@@ -2352,13 +2282,6 @@ packages:
 
   /safer-buffer/2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
-    dev: false
-
-  /scheduler/0.20.2:
-    resolution: {integrity: sha512-2eWfGgAqqWFGqtdMmcL5zCMK1U8KlXv8SQFGglL3CEtd0aDVDWgeF/YoCmvln55m5zSk3J/20hTaSBeSObsQDQ==}
-    dependencies:
-      loose-envify: 1.4.0
-      object-assign: 4.1.1
     dev: false
 
   /semver/6.3.0:

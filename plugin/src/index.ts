@@ -9,7 +9,6 @@ import type {
 
 type PluginOptions = GeneratorOptions & {
   development?: boolean;
-  strictInputMap?: boolean;
   downloadDeps?: boolean;
 };
 
@@ -87,6 +86,7 @@ function plugin(_options?: PluginOptions): Plugin[] {
           id.startsWith("/") ||
           id.startsWith(".") ||
           id.startsWith("vite/") ||
+          id.startsWith("__vite") ||
           id.includes(".css") ||
           id.includes(".html") ||
           path.isAbsolute(id)
@@ -101,7 +101,9 @@ function plugin(_options?: PluginOptions): Plugin[] {
           if (importer?.startsWith("http")) {
             return;
           }
-          installPromiseCache.push(generator.install(`${id}@latest`));
+          try {
+            installPromiseCache.push(generator.install(id));
+          } catch {}
         }
 
         return;
@@ -118,7 +120,10 @@ function plugin(_options?: PluginOptions): Plugin[] {
         const options = getOptions(env, _options);
         const generator = getGenerator(options);
         let proxyPath;
-        await Promise.all(installPromiseCache);
+        try {
+          await Promise.all(installPromiseCache);
+          installPromiseCache.length = 0;
+        } catch {}
 
         if (id.startsWith("vite/") || path.isAbsolute(id)) {
           return;
@@ -153,14 +158,12 @@ function plugin(_options?: PluginOptions): Plugin[] {
         return { id, external: true };
       },
       async load(id) {
-        if (id.startsWith("vite/")) {
+        if (id?.startsWith("vite/") || !id?.startsWith("http")) {
           return;
         }
 
-        console.log(id);
-
         const options = getOptions(env, _options);
-        if (options?.downloadDeps && id?.startsWith("http")) {
+        if (options?.downloadDeps) {
           const code = await (await fetch(id)).text();
           return code;
         }

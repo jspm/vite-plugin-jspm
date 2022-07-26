@@ -1,11 +1,12 @@
 import puppeteer from "puppeteer";
 import { build, preview, PreviewServer } from "vite";
 import { describe, afterAll, beforeAll, expect, test } from "vitest";
+import { sleep } from "./utils";
 
-const url = "http://localhost:3000";
-const sleep = (num: number) => new Promise((res) => setTimeout(res, num));
+const url = "http://localhost:3002";
 
-describe("Dev with downloadDeps options", async () => {
+describe("build", async () => {
+  await build({ configFile: "./vite-download.config.ts" });
   let server: PreviewServer;
 
   let browser: puppeteer.Browser;
@@ -14,7 +15,7 @@ describe("Dev with downloadDeps options", async () => {
   beforeAll(async () => {
     server = await preview({
       configFile: "./vite-download.config.ts",
-      server: { port: 3000 },
+      preview: { open: false, port: 3002 },
     });
     server.printUrls();
 
@@ -22,11 +23,13 @@ describe("Dev with downloadDeps options", async () => {
     page = await browser.newPage();
   });
 
-  test("Loads the deps from CDN, even if downdloadDeps is passed", async () => {
+  test("basic render", async () => {
     await page.goto(url);
     await sleep(1000);
-    console.log(await page.content());
-    // expect(await page.content()).toContain("<h1>Hello, world!</h1>");
+    const content = await page.content();
+
+    expect(content).toContain("<h1>Hello, world!</h1>");
+    expect(content).not.toContain("importmap");
   });
 
   afterAll(async () => {
