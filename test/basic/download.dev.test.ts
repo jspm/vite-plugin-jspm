@@ -29,8 +29,8 @@ describe("dev", async () => {
     await sleep(1000);
     const content = await page.content();
 
-    expect(content).toContain(`importmap`);
-    expect(content).toContain("<h1>Hello, world!</h1>");
+    expect(content).toMatch(`importmap`);
+    expect(content).toMatch("Hello, world!");
   });
 
   afterAll(async () => {

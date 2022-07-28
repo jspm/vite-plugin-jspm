@@ -25,9 +25,10 @@ describe("build", async () => {
 
   test("basic render", async () => {
     await page.goto(url);
-    await sleep(500);
+    await sleep(1000);
+    const content = await page.content();
 
-    expect(await page.content()).toContain("Hello, world!");
+    expect(content).toMatch("Hello, world!");
   });
 
   afterAll(async () => {

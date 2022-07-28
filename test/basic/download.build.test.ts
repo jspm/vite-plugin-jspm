@@ -25,11 +25,11 @@ describe("build", async () => {
 
   test("basic render", async () => {
     await page.goto(url);
-    await sleep(1000);
+    await sleep(1500);
     const content = await page.content();
 
-    expect(content).toContain("<h1>Hello, world!</h1>");
-    expect(content).not.toContain("importmap");
+    expect(content).toMatch("<h1>Hello, world!</h1>");
+    expect(content).not.toMatch("importmap");
   });
 
   afterAll(async () => {

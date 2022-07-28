@@ -8,12 +8,10 @@ import type {
 } from "vite";
 
 type PluginOptions = GeneratorOptions & {
-  development?: boolean;
   downloadDeps?: boolean;
 };
 
 const getDefaultOptions = (env: ConfigEnv): PluginOptions => ({
-  development: true,
   mapUrl: import.meta.url,
   defaultProvider: "jspm",
   env: [
@@ -188,7 +186,7 @@ function plugin(_options?: PluginOptions): Plugin[] {
               attrs: {
                 type: "module",
                 src: "https://ga.jspm.io/npm:es-module-shims@1.5.9/dist/es-module-shims.js",
-                async: !(options.development && env.command === "serve"),
+                async: !(env.command === "serve"),
               },
               injectTo: "head-prepend",
             },

@@ -29,25 +29,11 @@ export default defineConfig({
 
 ## Custom options
 
-### `development` 
-enables the plugin in `vite dev`.
-```ts
-jspmPlugin({
-  development: true
-}),
-```
+### `inputMap`
+`inputMap` is a `@jspm/generator` option. When passed, the plugin takes it  as source of truth. And resolves the imports against it.
 
-### `strictInputMap`
-
-> `inputMap`: An existing import map can be passed to the generator with the inputMap option for adding new packages to an existing map or modifying an existing map
-
-If this option is `true` and `inputMap` is defined, we skip installing/resolving dependencies and only dependencies from the `inputMap` would be resolved
-```ts
-jspmPlugin({
-  inputMap: { ... },
-  strictInputMap: true
-}),
-```
+### `downloadDeps`
+When passed, downloads the dependencies and bundles them with the build. But in dev mode `vite dev`, the plugin serves the dependencies from the CDN.
 
 # Bundle size
 
@@ -59,8 +45,12 @@ dist/assets/index.75d36a39.js    0.23 KiB / gzip: 0.17 KiB
 dist/assets/vendor.75a6031c.js   128.58 KiB / gzip: 41.37 KiB
 
 # with this plugin
-dist/index.html                 0.86 KiB
-dist/assets/index.0fb49565.js   0.23 KiB / gzip: 0.15 KiB
+dist/index.html                 0.91 KiB
+dist/assets/index.b911b8a6.js   0.23 KiB / gzip: 0.16 KiB
+
+# with downloadDeps flag in the plugin
+dist/index.html                 0.50 KiB
+dist/assets/index.1f44e570.js   140.50 KiB / gzip: 44.96 KiB
 ```
 
 # Contribution

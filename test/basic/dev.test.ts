@@ -26,9 +26,10 @@ describe("dev", async () => {
   // in dev, page should just render
   test("basic render", async () => {
     await page.goto(url);
-    await sleep(500);
+    await sleep(1000);
+    const content = await page.content();
 
-    expect(await page.content()).toContain("<h1>Hello, world!</h1>");
+    expect(content).toMatch("Hello, world!");
   });
 
   afterAll(async () => {
