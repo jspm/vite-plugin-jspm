@@ -10,5 +10,6 @@
   "devDependencies": {
     "vite": "^2.9.5",
     "cross-env": "^7.0.3"
-  }
+  },
+  "version": "0.1.0"
 }
