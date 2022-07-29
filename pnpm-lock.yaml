@@ -57,11 +57,10 @@ importers:
 
   test/basic:
     specifiers:
+      cross-env: ^7.0.3
       vite: ^2.9.5
-      vite-plugin-jspm: workspace:latest
-    dependencies:
-      vite-plugin-jspm: link:../../plugin
     devDependencies:
+      cross-env: 7.0.3
       vite: 2.9.5
 
 packages:

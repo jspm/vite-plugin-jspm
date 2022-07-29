@@ -5,9 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "pnpm -r --filter vite-plugin-jspm run build",
-    "dev": "pnpm -r --filter vite-plugin-jspm run dev",
-    "test:core": "vitest -r test/basic",
-    "test:all": "cross-env CI=true pnpm -r --stream run test --"
+    "dev": "pnpm -r --filter vite-plugin-jspm run dev"
   },
   "devDependencies": {
     "@rollup/plugin-alias": "^3.1.9",

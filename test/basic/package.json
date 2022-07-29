@@ -4,12 +4,11 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "vitest --isolate --silent"
-  },
-  "dependencies": {
-    "vite-plugin-jspm": "workspace:latest"
+    "test": "vitest --silent --threads --isolate",
+    "test:ci": "cross-env CI=true vitest --silent --threads --isolate"
   },
   "devDependencies": {
-    "vite": "^2.9.5"
+    "vite": "^2.9.5",
+    "cross-env": "^7.0.3"
   }
 }

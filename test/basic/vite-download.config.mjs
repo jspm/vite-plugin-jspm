@@ -1,7 +1,7 @@
 import { defineConfig } from "vite";
-import jspmPlugin from "vite-plugin-jspm";
+import jspmPlugin from "../../plugin/dist/index.js";
 
 export default defineConfig({
-  plugins: [jspmPlugin({ development: true, downloadDeps: true })],
+  plugins: [jspmPlugin({ downloadDeps: true })],
   build: { polyfillModulePreload: false, polyfillDynamicImport: false },
 });

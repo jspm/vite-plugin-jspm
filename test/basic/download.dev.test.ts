@@ -1,3 +1,4 @@
+import path from "path";
 import puppeteer from "puppeteer";
 import { createServer, ViteDevServer } from "vite";
 import { describe, afterAll, beforeAll, expect, test } from "vitest";
@@ -13,7 +14,7 @@ describe("dev", async () => {
 
   beforeAll(async () => {
     server = await createServer({
-      configFile: "./vite-download.config.ts",
+      configFile: path.resolve(__dirname, "./vite-download.config.mjs"),
       server: { port: 3003 },
     });
     server.printUrls();
@@ -29,8 +30,11 @@ describe("dev", async () => {
     await sleep(1000);
     const content = await page.content();
 
-    expect(content).toMatch(`importmap`);
-    expect(content).toMatch("Hello, world!");
+    const hasRendered = content.includes("Hello, world!");
+    const hasImportMap = content.includes("importmap");
+
+    expect(hasImportMap).toBe(true);
+    expect(hasRendered).toBe(true);
   });
 
   afterAll(async () => {
