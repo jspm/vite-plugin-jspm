@@ -1,41 +1,42 @@
 import path from "path";
 import puppeteer from "puppeteer";
-import { createServer, ViteDevServer } from "vite";
+import { build, preview, PreviewServer } from "vite";
 import { describe, afterAll, beforeAll, expect, test } from "vitest";
 import { sleep } from "./utils";
 
-const url = "http://localhost:3001";
+const url = "http://localhost:3002";
 
-describe("dev", async () => {
-  let server: ViteDevServer;
+describe("build", async () => {
+  await build({
+    configFile: path.resolve(__dirname, "./vite-download.config.mjs"),
+  });
+  let server: PreviewServer;
 
   let browser: puppeteer.Browser;
   let page: puppeteer.Page;
 
   beforeAll(async () => {
-    server = await createServer({
-      configFile: path.resolve(__dirname, "./vite.config.mjs"),
-      server: { port: 3001 },
+    server = await preview({
+      configFile: "./vite-download.config.mjs",
+      preview: { open: false, port: 3002 },
     });
     server.printUrls();
-    await server.listen();
 
     browser = await puppeteer.launch();
     page = await browser.newPage();
   });
 
-  // in dev, page should just render
   test("basic render", async () => {
     await page.goto(url);
-    await sleep(500);
+    await sleep(1000);
     const content = await page.content();
 
     expect(content).toContain("Hello, world!");
-    expect(content).toContain("importmap");
+    expect(content).not.toContain("importmap");
   });
 
   afterAll(async () => {
     await browser.close();
-    server.close();
+    server.httpServer.close();
   });
 });

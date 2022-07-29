@@ -4,7 +4,7 @@ import { createServer, ViteDevServer } from "vite";
 import { describe, afterAll, beforeAll, expect, test } from "vitest";
 import { sleep } from "./utils";
 
-const url = "http://localhost:3001";
+const url = "http://localhost:3003";
 
 describe("dev", async () => {
   let server: ViteDevServer;
@@ -14,8 +14,8 @@ describe("dev", async () => {
 
   beforeAll(async () => {
     server = await createServer({
-      configFile: path.resolve(__dirname, "./vite.config.mjs"),
-      server: { port: 3001 },
+      configFile: path.resolve(__dirname, "./vite-download.config.mjs"),
+      server: { port: 3003 },
     });
     server.printUrls();
     await server.listen();

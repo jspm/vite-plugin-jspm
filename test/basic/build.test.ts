@@ -1,11 +1,13 @@
 import puppeteer from "puppeteer";
 import { build, preview, PreviewServer } from "vite";
 import { describe, afterAll, beforeAll, expect, test } from "vitest";
+import { sleep } from "./utils";
+import path from "path";
 
 const url = "http://localhost:3000";
 
 describe("build", async () => {
-  await build({ configFile: "./vite.config.ts" });
+  await build({ configFile: path.resolve(__dirname, "./vite.config.mjs") });
   let server: PreviewServer;
 
   let browser: puppeteer.Browser;
@@ -13,7 +15,7 @@ describe("build", async () => {
 
   beforeAll(async () => {
     server = await preview({
-      configFile: "./vite.config.ts",
+      configFile: path.resolve(__dirname, "./vite.config.mjs"),
       preview: { open: false, port: 3000 },
     });
     server.printUrls();
@@ -24,7 +26,11 @@ describe("build", async () => {
 
   test("basic render", async () => {
     await page.goto(url);
-    expect(await page.content()).toContain("Hello, world!");
+    await sleep(1000);
+    const content = await page.content();
+
+    expect(content).toContain("Hello, world!");
+    expect(content).toContain("importmap");
   });
 
   afterAll(async () => {
