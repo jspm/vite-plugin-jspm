@@ -194,7 +194,7 @@ function plugin(_options?: PluginOptions): Plugin[] {
 
           if (
             // only when we are in development or non-downloadDeps (prod-dev)
-            !options?.downloadDeps &&
+            !options?.downloadDeps ||
             process.env?.NODE_ENV !== "production"
           ) {
             tags.unshift({
