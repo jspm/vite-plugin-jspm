@@ -4,8 +4,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "vitest --silent --threads --isolate",
-    "test:ci": "cross-env CI=true vitest --silent --threads --isolate"
+    "test": "vitest --threads --isolate",
+    "test:ci": "cross-env CI=true vitest --threads --isolate"
   },
   "devDependencies": {
     "vite": "^2.9.5",

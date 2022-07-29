@@ -27,7 +27,7 @@ describe("dev", async () => {
   // in dev, page should just render
   test("basic render", async () => {
     await page.goto(url);
-    await sleep(1000);
+    await sleep(500);
     const content = await page.content();
 
     expect(content).toContain("Hello, world!");

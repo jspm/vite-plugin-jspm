@@ -27,14 +27,11 @@ describe("dev", async () => {
   // in dev, page should just render
   test("basic render", async () => {
     await page.goto(url);
-    await sleep(1000);
+    await sleep(500);
     const content = await page.content();
 
-    const hasRendered = content.includes("Hello, world!");
-    const hasImportMap = content.includes("importmap");
-
-    expect(hasImportMap).toBe(true);
-    expect(hasRendered).toBe(true);
+    expect(content).toContain("Hello, world!");
+    expect(content).toContain("importmap");
   });
 
   afterAll(async () => {
