@@ -44,7 +44,7 @@ jobs:
       - name: Test
         run: |
           cd test/basic
-          npm run test:ci
+          pnpm run test:ci
 
       - name: Lint
         run: pnpm run lint --if-present
