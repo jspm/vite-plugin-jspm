@@ -150,7 +150,7 @@ function plugin(_options?: PluginOptions): Plugin[] {
         }
 
         if (options?.downloadDeps) {
-          return { id: proxyPath, external: false };
+          return { id: proxyPath as any, external: false };
         }
 
         return { id, external: true };
@@ -194,7 +194,7 @@ function plugin(_options?: PluginOptions): Plugin[] {
 
           if (
             // only when we are in development or non-downloadDeps (prod-dev)
-            !options?.downloadDeps ||
+            !options?.downloadDeps &&
             process.env?.NODE_ENV !== "production"
           ) {
             tags.unshift({
