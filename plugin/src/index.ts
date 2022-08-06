@@ -1,11 +1,6 @@
 import path from "path";
 import { Generator, GeneratorOptions, fetch } from "@jspm/generator";
-import type {
-  ConfigEnv,
-  HtmlTagDescriptor,
-  Plugin,
-  ResolvedConfig,
-} from "vite";
+import type { ConfigEnv, HtmlTagDescriptor, Plugin } from "vite";
 
 type PluginOptions = GeneratorOptions & {
   downloadDeps?: boolean;
@@ -41,7 +36,6 @@ function getGenerator(options: PluginOptions) {
 
 function plugin(_options?: PluginOptions): Plugin[] {
   let env: ConfigEnv;
-  let resolvedConfig: ResolvedConfig;
   const resolvedDeps: Set<string> = new Set();
   const installPromiseCache: Promise<unknown>[] = [];
 
@@ -49,14 +43,14 @@ function plugin(_options?: PluginOptions): Plugin[] {
     {
       name: "jspm:imports-scan",
       enforce: "pre",
-      config(_config, _env) {
+      config(_, _env) {
         env = _env;
       },
-      configResolved(_config) {
-        resolvedConfig = _config;
+      configResolved(config) {
+        config.build.polyfillModulePreload = false;
 
         // @ts-ignore
-        resolvedConfig.plugins.push({
+        config.plugins.push({
           name: "vite-plugin-ignore-static-import-replace-idprefix",
           transform: (code, _, ctx) => {
             if (ctx?.ssr) {
