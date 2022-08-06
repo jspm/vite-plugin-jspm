@@ -22,8 +22,6 @@ export default defineConfig({
       // optional object for @jspm/generator options and settings, more info in https://github.com/jspm/generator
     }),
   ],
-  // we need to disable vite's default polyfilling, because es-module-shims enables it instead
-  build: { polyfillModulePreload: false, polyfillDynamicImport: false },
 });
 ```
 
