@@ -8,8 +8,8 @@
     "test:ci": "cross-env CI=true vitest --threads --isolate"
   },
   "devDependencies": {
-    "vite": "^2.9.5",
-    "cross-env": "^7.0.3"
+    "cross-env": "^7.0.3",
+    "vite": "^2.9.5"
   },
   "version": "0.1.0"
 }

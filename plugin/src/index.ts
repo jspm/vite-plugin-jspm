@@ -4,51 +4,50 @@ import type { ConfigEnv, HtmlTagDescriptor, Plugin } from "vite";
 
 type PluginOptions = GeneratorOptions & {
   downloadDeps?: boolean;
+  debug?: boolean
 };
 
-const getDefaultOptions = (env: ConfigEnv): PluginOptions => ({
-  mapUrl: import.meta.url,
+const getDefaultOptions = (): PluginOptions => ({
   defaultProvider: "jspm",
+  debug: false,
   env: [
-    env.mode === "development" ? "development" : "production",
     "browser",
     "module",
   ],
 });
 
-let __options: PluginOptions | null = null;
+let generator: Generator
 
-const getOptions = (env: ConfigEnv, options?: PluginOptions): PluginOptions => {
-  if (__options) {
-    return __options;
-  }
-  return (__options = { ...getDefaultOptions(env), ...options });
-};
-
-let __generator: Generator | null = null;
-
-function getGenerator(options: PluginOptions) {
-  if (__generator) {
-    return __generator;
-  }
-  return (__generator = new Generator(options));
-}
-
-function plugin(_options?: PluginOptions): Plugin[] {
-  let env: ConfigEnv;
+async function plugin(options?: PluginOptions): Promise<Plugin[]> {
   const resolvedDeps: Set<string> = new Set();
-  const installPromiseCache: Promise<unknown>[] = [];
+  const generatorOptions = { ...getDefaultOptions(), ...options}
+  let promises: Promise<void| {
+    staticDeps: string[];
+    dynamicDeps: string[];
+}>[] = []
+  
+  const log = (msg: string) => {
+    if (!generatorOptions?.debug) {
+      return
+    }
+    console.log('[vite-plugin-jspm]:' + msg)
+  }
+  
+  generator = new Generator(generatorOptions);
+  if (generatorOptions?.inputMap) {
+    await generator.reinstall()
+  }
 
   return [
     {
       name: "jspm:imports-scan",
       enforce: "pre",
       config(_, _env) {
-        env = _env;
+        generatorOptions.env?.push(_env.mode)
       },
       configResolved(config) {
-        config.build.polyfillModulePreload = false;
-
+        config.build.modulePreload = false;
+        
         // @ts-ignore
         config.plugins.push({
           name: "vite-plugin-ignore-static-import-replace-idprefix",
@@ -68,9 +67,7 @@ function plugin(_options?: PluginOptions): Plugin[] {
         } as Plugin);
       },
       async resolveId(id, importer, ctx) {
-        const options = getOptions(env, _options);
         if (ctx.ssr) {
-          // No plans on getting this working in SSR
           return null;
         }
 
@@ -86,36 +83,40 @@ function plugin(_options?: PluginOptions): Plugin[] {
           return;
         }
 
-        const generator = getGenerator(options);
-        try {
-          generator.resolve(id);
-        } catch {
-          if (importer?.startsWith("http")) {
-            return;
-          }
-          try {
-            installPromiseCache.push(generator.install(id));
-          } catch {}
-        }
+        let proxyPath;
 
-        return;
+        try {
+          log(`jspm:imports-scan: Resolving ${id}`)
+          proxyPath = generator.resolve(id, importer);
+          resolvedDeps.add(id)
+
+          if (options?.downloadDeps) {
+            return {
+              id: proxyPath,
+              external: false
+            }
+          }
+
+          return { id, external: true }
+        } catch {
+          promises.push(generator.install(id))
+        }
+        return
       },
     },
     {
-      name: "jspm:import-mapping",
-      enforce: "post",
-      async resolveId(id, importer, ctx) {
-        if (ctx?.ssr) {
-          return null;
-        }
-
-        const options = getOptions(env, _options);
-        const generator = getGenerator(options);
+      name: 'jspm:nest-mapping',
+      enforce: 'post',
+      async resolveId (id, importer) {
         let proxyPath;
-        try {
-          await Promise.all(installPromiseCache);
-          installPromiseCache.length = 0;
-        } catch {}
+        /**
+         * If users are trying to load any JS from http url's
+         */
+
+        if (promises.length > 0) {
+          await Promise.all(promises)
+          promises = []
+        }
 
         if (id.startsWith("vite/") || path.isAbsolute(id)) {
           return;
@@ -143,25 +144,8 @@ function plugin(_options?: PluginOptions): Plugin[] {
           }
         }
 
-        if (options?.downloadDeps) {
-          return { id: proxyPath as any, external: false };
-        }
-
         return { id, external: true };
-      },
-      async load(id) {
-        if (id?.startsWith("vite/") || !id?.startsWith("http")) {
-          return;
-        }
-
-        const options = getOptions(env, _options);
-        if (options?.downloadDeps) {
-          const code = await (await fetch(id)).text();
-          return code;
-        }
-
-        return;
-      },
+      }
     },
     {
       name: "jspm:post",
@@ -170,8 +154,6 @@ function plugin(_options?: PluginOptions): Plugin[] {
         // NODE_ENV is "production" in `vite build`
         enforce: process.env?.NODE_ENV === "production" ? "post" : "pre",
         async transform(html) {
-          const options = getOptions(env, _options);
-          const generator = getGenerator(options);
           resolvedDeps.clear();
 
           const tags: HtmlTagDescriptor[] = [
@@ -180,7 +162,7 @@ function plugin(_options?: PluginOptions): Plugin[] {
               attrs: {
                 type: "module",
                 src: "https://ga.jspm.io/npm:es-module-shims@1.5.9/dist/es-module-shims.js",
-                async: !(env.command === "serve"),
+                async: true,
               },
               injectTo: "head-prepend",
             },
@@ -212,4 +194,3 @@ function plugin(_options?: PluginOptions): Plugin[] {
 }
 
 export default plugin;
-export { __generator as generator };

@@ -16,13 +16,14 @@
     "cross-env": "^7.0.3",
     "esbuild": "^0.14.27",
     "esbuild-node-loader": "^0.6.5",
+    "magic-string": "^0.29.0",
     "puppeteer": "^13.5.1",
     "rimraf": "^3.0.2",
     "rollup": "2.60",
-    "rollup-plugin-dts": "^4.2.0",
+    "rollup-plugin-dts": "^5.1.1",
     "rollup-plugin-esbuild": "^4.8.2",
     "typescript": "^4.6.2",
-    "vite": "^2.9.5",
+    "vite": "^4.1.1",
     "vitest": "latest"
   }
 }
