@@ -1,41 +1,48 @@
 import path from "path";
 import { Generator, GeneratorOptions, fetch } from "@jspm/generator";
-import type { ConfigEnv, HtmlTagDescriptor, Plugin } from "vite";
+import type { HtmlTagDescriptor, Plugin } from "vite";
 
 type PluginOptions = GeneratorOptions & {
   downloadDeps?: boolean;
-  debug?: boolean
+  debug?: boolean;
 };
 
 const getDefaultOptions = (): PluginOptions => ({
   defaultProvider: "jspm",
   debug: false,
-  env: [
-    "browser",
-    "module",
-  ],
+  env: ["browser", "module"],
 });
 
-let generator: Generator
+const getLatestVersionOfShims = async () => {
+  const version = await (
+    await fetch(`https://ga.jspm.io/npm:es-module-shims`)
+  ).text();
+  return version;
+};
 
-async function plugin(options?: PluginOptions): Promise<Plugin[]> {
+let generator: Generator;
+
+async function plugin(pluginOptions?: PluginOptions): Promise<Plugin[]> {
   const resolvedDeps: Set<string> = new Set();
-  const generatorOptions = { ...getDefaultOptions(), ...options}
-  let promises: Promise<void| {
+  const promises: Promise<void | {
     staticDeps: string[];
     dynamicDeps: string[];
-}>[] = []
-  
+  }>[] = [];
+  let options = { ...getDefaultOptions(), ...(pluginOptions || {}) };
+  options.env = options.env?.filter(
+    (envVar) => !["development", "production"].includes(envVar)
+  );
+
   const log = (msg: string) => {
-    if (!generatorOptions?.debug) {
-      return
+    if (!options?.debug) {
+      return;
     }
-    console.log('[vite-plugin-jspm]:' + msg)
-  }
-  
-  generator = new Generator(generatorOptions);
-  if (generatorOptions?.inputMap) {
-    await generator.reinstall()
+    console.log("[vite-plugin-jspm]:" + msg);
+  };
+
+  generator = new Generator(options);
+  if (options?.inputMap) {
+    await generator.reinstall();
   }
 
   return [
@@ -43,11 +50,11 @@ async function plugin(options?: PluginOptions): Promise<Plugin[]> {
       name: "jspm:imports-scan",
       enforce: "pre",
       config(_, _env) {
-        generatorOptions.env?.push(_env.mode)
+        options.env?.push(_env.mode);
       },
       configResolved(config) {
         config.build.modulePreload = false;
-        
+
         // @ts-ignore
         config.plugins.push({
           name: "vite-plugin-ignore-static-import-replace-idprefix",
@@ -83,59 +90,72 @@ async function plugin(options?: PluginOptions): Promise<Plugin[]> {
           return;
         }
 
-        let proxyPath;
-
         try {
-          log(`jspm:imports-scan: Resolving ${id}`)
-          proxyPath = generator.resolve(id, importer);
-          resolvedDeps.add(id)
-
-          if (options?.downloadDeps) {
-            return {
-              id: proxyPath,
-              external: false
-            }
+          log(`jspm:imports-scan: Resolving ${id}`);
+          generator.resolve(id, importer);
+          resolvedDeps.add(id);
+        } catch {
+          if (importer?.startsWith("http")) {
+            return;
           }
 
-          return { id, external: true }
-        } catch {
-          promises.push(generator.install(id))
+          if (resolvedDeps.has(id)) {
+            return;
+          }
+
+          log(`jspm:imports-scan: Installing ${id}`);
+          promises.push(generator.install(id));
+          resolvedDeps.add(id);
         }
-        return
+
+        return;
       },
     },
     {
-      name: 'jspm:nest-mapping',
-      enforce: 'post',
-      async resolveId (id, importer) {
-        let proxyPath;
-        /**
-         * If users are trying to load any JS from http url's
-         */
-
-        if (promises.length > 0) {
-          await Promise.all(promises)
-          promises = []
+      name: "jspm:import-mapping",
+      enforce: "post",
+      async resolveId(id, importer, ctx) {
+        if (ctx.ssr) {
+          return null;
         }
 
         if (id.startsWith("vite/") || path.isAbsolute(id)) {
           return;
         }
 
+        try {
+          await Promise.all(promises);
+          promises.length = 0;
+        } catch (error) {
+          console.log(error);
+        }
+
         if (importer?.startsWith("http") && id?.startsWith(".")) {
-          proxyPath = new URL(id, importer).toString();
+          const proxyPath = new URL(id, importer).toString();
           if (options?.downloadDeps) {
             return { id: proxyPath, external: false };
           }
           return { id, external: true };
         }
 
+        // console.log(id, "outside");
+        // console.log(generator.importMap.imports);
+
         try {
-          proxyPath = generator.resolve(id);
+          log(`jspm:import-mapping: Resolving ${id}`);
+          const proxyPath = generator.resolve(id);
+          console.log(id);
+          console.log(proxyPath);
           resolvedDeps.add(id);
+
+          if (options?.downloadDeps) {
+            return { id: proxyPath, external: false };
+          }
+          return { id, external: true };
         } catch (e) {
           if (importer?.startsWith("http")) {
-            proxyPath = generator.importMap.resolve(id, importer);
+            log(`jspm:import-mapping: Resolving ${id} from ${importer}`);
+            const proxyPath = generator.importMap.resolve(id, importer);
             resolvedDeps.add(id);
             if (options?.downloadDeps) {
               return { id: proxyPath, external: false };
@@ -143,37 +163,41 @@ async function plugin(options?: PluginOptions): Promise<Plugin[]> {
             return { id, external: true };
           }
         }
+      },
+      async load(id) {
+        if (id?.startsWith("vite/") || !id?.startsWith("http")) {
+          return;
+        }
 
-        return { id, external: true };
-      }
+        if (options?.downloadDeps) {
+          log(`jspm:import-mapping: Downloading ${id}`);
+          const code = await (await fetch(id)).text();
+          return code;
+        }
+        return;
+      },
     },
     {
       name: "jspm:post",
       enforce: "post",
       transformIndexHtml: {
-        // NODE_ENV is "production" in `vite build`
-        enforce: process.env?.NODE_ENV === "production" ? "post" : "pre",
+        enforce: "post",
         async transform(html) {
           resolvedDeps.clear();
-
+          const esModuleShims = await getLatestVersionOfShims();
           const tags: HtmlTagDescriptor[] = [
             {
               tag: "script",
               attrs: {
-                type: "module",
-                src: "https://ga.jspm.io/npm:es-module-shims@1.5.9/dist/es-module-shims.js",
+                src: `https://ga.jspm.io/npm:es-module-shims@${esModuleShims}/dist/es-module-shims.js`,
                 async: true,
               },
               injectTo: "head-prepend",
             },
           ];
 
-          if (
-            // only when we are in development or non-downloadDeps (prod-dev)
-            !options?.downloadDeps ||
-            process.env?.NODE_ENV !== "production"
-          ) {
-            tags.unshift({
+          if (!options?.downloadDeps) {
+            tags.push({
               tag: "script",
               attrs: {
                 type: "importmap",
@@ -194,3 +218,4 @@ async function plugin(options?: PluginOptions): Promise<Plugin[]> {
 }
 
 export default plugin;
+export { generator };
