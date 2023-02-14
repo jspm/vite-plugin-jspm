@@ -1,15 +1,9 @@
 {
   "type": "module",
+  "private": true,
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
     "test": "vitest --threads --isolate",
     "test:ci": "cross-env CI=true vitest --threads --isolate"
-  },
-  "devDependencies": {
-    "cross-env": "^7.0.3",
-    "vite": "^2.9.5"
   },
   "version": "0.1.0"
 }
