@@ -41,6 +41,15 @@ async function plugin(pluginOptions?: PluginOptions): Promise<Plugin[]> {
   };
 
   generator = new Generator(options);
+
+  if (options?.debug) {
+    (async () => {
+      for await (const { type, message } of generator.logStream()) {
+        console.log(`${type}: ${message}`);
+      }
+    })();
+  }
+
   if (options?.inputMap) {
     await generator.reinstall();
   }
@@ -85,26 +94,20 @@ async function plugin(pluginOptions?: PluginOptions): Promise<Plugin[]> {
           id.startsWith("__vite") ||
           id.includes(".css") ||
           id.includes(".html") ||
-          path.isAbsolute(id)
+          path.isAbsolute(id) ||
+          resolvedDeps.has(id) ||
+          importer?.startsWith("http")
         ) {
           return;
         }
 
         try {
           log(`jspm:imports-scan: Resolving ${id}`);
-          generator.resolve(id, importer);
-          resolvedDeps.add(id);
+          generator.resolve(id);
         } catch {
-          if (importer?.startsWith("http")) {
-            return;
-          }
-
-          if (resolvedDeps.has(id)) {
-            return;
-          }
-
           log(`jspm:imports-scan: Installing ${id}`);
           promises.push(generator.install(id));
+        } finally {
           resolvedDeps.add(id);
         }
 
@@ -115,19 +118,17 @@ async function plugin(pluginOptions?: PluginOptions): Promise<Plugin[]> {
       name: "jspm:import-mapping",
       enforce: "post",
       async resolveId(id, importer, ctx) {
+        try {
+          await Promise.allSettled(promises);
+          promises.length = 0;
+        } catch {}
+
         if (ctx.ssr) {
           return null;
         }
 
         if (id.startsWith("vite/") || path.isAbsolute(id)) {
           return;
-        }
-
-        try {
-          await Promise.all(promises);
-          promises.length = 0;
-        } catch (error) {
-          console.log(error);
         }
 
         if (importer?.startsWith("http") && id?.startsWith(".")) {
@@ -138,14 +139,9 @@ async function plugin(pluginOptions?: PluginOptions): Promise<Plugin[]> {
           return { id, external: true };
         }
 
-        // console.log(id, "outside");
-        // console.log(generator.importMap.imports);
-
         try {
           log(`jspm:import-mapping: Resolving ${id}`);
           const proxyPath = generator.resolve(id);
-          console.log(id);
-          console.log(proxyPath);
           resolvedDeps.add(id);
 
           if (options?.downloadDeps) {
@@ -163,6 +159,8 @@ async function plugin(pluginOptions?: PluginOptions): Promise<Plugin[]> {
             return { id, external: true };
           }
         }
+
+        return { id, external: true };
       },
       async load(id) {
         if (id?.startsWith("vite/") || !id?.startsWith("http")) {
