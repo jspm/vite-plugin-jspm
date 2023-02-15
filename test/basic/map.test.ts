@@ -63,10 +63,16 @@ describe("build", async () => {
     expect(indexHTML).toBeDefined();
     expect(indexHTML).toContain(`npm:es-module-shims`);
     expect(indexHTML).toContain("importmap");
-    expect(indexHTML).toContain(`https://ga.jspm.io/npm:react`);
     expect(indexJS).toContain(`from"react"`);
     expect(content).toContain(`<h1>Hello, world!</h1>`);
     expect(content).toContain(`<p>Loading 17.0.2</p>`);
+    /**
+     * Vite build run in production mode, so even if inputMap has `dev` version of deps.
+     * The plugin will re-map with `prod` version of the same deps with the same version
+     */
+    expect(indexHTML).toContain(
+      '"react": "https://ga.jspm.io/npm:react@17.0.2/index.js'
+    );
   });
 
   test("Parses vite-build and download the deps too into local and add them to build", async () => {
