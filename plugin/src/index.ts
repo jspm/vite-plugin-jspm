@@ -1,53 +1,68 @@
 import path from "path";
 import { Generator, GeneratorOptions, fetch } from "@jspm/generator";
-import type { ConfigEnv, HtmlTagDescriptor, Plugin } from "vite";
+import type { HtmlTagDescriptor, Plugin } from "vite";
 
 type PluginOptions = GeneratorOptions & {
   downloadDeps?: boolean;
+  debug?: boolean;
 };
 
-const getDefaultOptions = (env: ConfigEnv): PluginOptions => ({
-  mapUrl: import.meta.url,
+const getDefaultOptions = (): PluginOptions => ({
   defaultProvider: "jspm",
-  env: [
-    env.mode === "development" ? "development" : "production",
-    "browser",
-    "module",
-  ],
+  debug: false,
+  env: ["browser", "module"],
 });
 
-let __options: PluginOptions | null = null;
-
-const getOptions = (env: ConfigEnv, options?: PluginOptions): PluginOptions => {
-  if (__options) {
-    return __options;
-  }
-  return (__options = { ...getDefaultOptions(env), ...options });
+const getLatestVersionOfShims = async () => {
+  const version = await (
+    await fetch(`https://ga.jspm.io/npm:es-module-shims`)
+  ).text();
+  return version;
 };
 
-let __generator: Generator | null = null;
+let generator: Generator;
 
-function getGenerator(options: PluginOptions) {
-  if (__generator) {
-    return __generator;
-  }
-  return (__generator = new Generator(options));
-}
-
-function plugin(_options?: PluginOptions): Plugin[] {
-  let env: ConfigEnv;
+async function plugin(pluginOptions?: PluginOptions): Promise<Plugin[]> {
   const resolvedDeps: Set<string> = new Set();
-  const installPromiseCache: Promise<unknown>[] = [];
+  const promises: Promise<void | {
+    staticDeps: string[];
+    dynamicDeps: string[];
+  }>[] = [];
+  let options = { ...getDefaultOptions(), ...(pluginOptions || {}) };
+  options.env = options.env?.filter(
+    (envVar) => !["development", "production"].includes(envVar)
+  );
+
+  const log = (msg: string) => {
+    if (!options?.debug) {
+      return;
+    }
+    console.log("[vite-plugin-jspm]:" + msg);
+  };
+
+  generator = new Generator(options);
+
+  if (options?.debug) {
+    (async () => {
+      for await (const { type, message } of generator.logStream()) {
+        console.log(`${type}: ${message}`);
+      }
+    })();
+  }
+
+  if (options?.inputMap) {
+    await generator.reinstall();
+  }
 
   return [
     {
       name: "jspm:imports-scan",
       enforce: "pre",
       config(_, _env) {
-        env = _env;
+        options.env?.push(_env.mode);
       },
       configResolved(config) {
-        config.build.polyfillModulePreload = false;
+        config.build.modulePreload = false;
 
         // @ts-ignore
         config.plugins.push({
@@ -68,9 +83,7 @@ function plugin(_options?: PluginOptions): Plugin[] {
         } as Plugin);
       },
       async resolveId(id, importer, ctx) {
-        const options = getOptions(env, _options);
         if (ctx.ssr) {
-          // No plans on getting this working in SSR
           return null;
         }
 
@@ -81,21 +94,21 @@ function plugin(_options?: PluginOptions): Plugin[] {
           id.startsWith("__vite") ||
           id.includes(".css") ||
           id.includes(".html") ||
-          path.isAbsolute(id)
+          path.isAbsolute(id) ||
+          resolvedDeps.has(id) ||
+          importer?.startsWith("http")
         ) {
           return;
         }
 
-        const generator = getGenerator(options);
         try {
+          log(`jspm:imports-scan: Resolving ${id}`);
           generator.resolve(id);
         } catch {
-          if (importer?.startsWith("http")) {
-            return;
-          }
-          try {
-            installPromiseCache.push(generator.install(id));
-          } catch {}
+          log(`jspm:imports-scan: Installing ${id}`);
+          promises.push(generator.install(id));
+        } finally {
+          resolvedDeps.add(id);
         }
 
         return;
@@ -105,24 +118,21 @@ function plugin(_options?: PluginOptions): Plugin[] {
       name: "jspm:import-mapping",
       enforce: "post",
       async resolveId(id, importer, ctx) {
-        if (ctx?.ssr) {
+        try {
+          await Promise.allSettled(promises);
+          promises.length = 0;
+        } catch {}
+
+        if (ctx.ssr) {
           return null;
         }
-
-        const options = getOptions(env, _options);
-        const generator = getGenerator(options);
-        let proxyPath;
-        try {
-          await Promise.all(installPromiseCache);
-          installPromiseCache.length = 0;
-        } catch {}
 
         if (id.startsWith("vite/") || path.isAbsolute(id)) {
           return;
         }
 
         if (importer?.startsWith("http") && id?.startsWith(".")) {
-          proxyPath = new URL(id, importer).toString();
+          const proxyPath = new URL(id, importer).toString();
           if (options?.downloadDeps) {
             return { id: proxyPath, external: false };
           }
@@ -130,21 +140,24 @@ function plugin(_options?: PluginOptions): Plugin[] {
         }
 
         try {
-          proxyPath = generator.resolve(id);
+          log(`jspm:import-mapping: Resolving ${id}`);
+          const proxyPath = generator.resolve(id);
           resolvedDeps.add(id);
+
+          if (options?.downloadDeps) {
+            return { id: proxyPath, external: false };
+          }
+          return { id, external: true };
         } catch (e) {
           if (importer?.startsWith("http")) {
-            proxyPath = generator.importMap.resolve(id, importer);
+            log(`jspm:import-mapping: Resolving ${id} from ${importer}`);
+            const proxyPath = generator.importMap.resolve(id, importer);
             resolvedDeps.add(id);
             if (options?.downloadDeps) {
               return { id: proxyPath, external: false };
             }
             return { id, external: true };
           }
-        }
-
-        if (options?.downloadDeps) {
-          return { id: proxyPath as any, external: false };
         }
 
         return { id, external: true };
@@ -154,12 +167,11 @@ function plugin(_options?: PluginOptions): Plugin[] {
           return;
         }
 
-        const options = getOptions(env, _options);
         if (options?.downloadDeps) {
+          log(`jspm:import-mapping: Downloading ${id}`);
           const code = await (await fetch(id)).text();
           return code;
         }
-
         return;
       },
     },
@@ -167,31 +179,23 @@ function plugin(_options?: PluginOptions): Plugin[] {
       name: "jspm:post",
       enforce: "post",
       transformIndexHtml: {
-        // NODE_ENV is "production" in `vite build`
-        enforce: process.env?.NODE_ENV === "production" ? "post" : "pre",
+        enforce: "post",
         async transform(html) {
-          const options = getOptions(env, _options);
-          const generator = getGenerator(options);
           resolvedDeps.clear();
-
+          const esModuleShims = await getLatestVersionOfShims();
           const tags: HtmlTagDescriptor[] = [
             {
               tag: "script",
               attrs: {
-                type: "module",
-                src: "https://ga.jspm.io/npm:es-module-shims@1.5.9/dist/es-module-shims.js",
-                async: !(env.command === "serve"),
+                src: `https://ga.jspm.io/npm:es-module-shims@${esModuleShims}/dist/es-module-shims.js`,
+                async: true,
               },
               injectTo: "head-prepend",
             },
           ];
 
-          if (
-            // only when we are in development or non-downloadDeps (prod-dev)
-            !options?.downloadDeps ||
-            process.env?.NODE_ENV !== "production"
-          ) {
-            tags.unshift({
+          if (!options?.downloadDeps) {
+            tags.push({
               tag: "script",
               attrs: {
                 type: "importmap",
@@ -212,4 +216,4 @@ function plugin(_options?: PluginOptions): Plugin[] {
 }
 
 export default plugin;
-export { __generator as generator };
+export { generator };
