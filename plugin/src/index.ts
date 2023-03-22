@@ -8,7 +8,6 @@ type PluginOptions = GeneratorOptions & {
 
 const getDefaultOptions = (env: ConfigEnv): PluginOptions => ({
   mapUrl: import.meta.url,
-  defaultProvider: "jspm",
   env: [
     env.mode === "development" ? "development" : "production",
     "browser",
@@ -95,7 +94,7 @@ function plugin(_options?: PluginOptions): Plugin[] {
           }
           try {
             installPromiseCache.push(generator.install(id));
-          } catch {}
+          } catch { }
         }
 
         return;
@@ -115,7 +114,7 @@ function plugin(_options?: PluginOptions): Plugin[] {
         try {
           await Promise.all(installPromiseCache);
           installPromiseCache.length = 0;
-        } catch {}
+        } catch { }
 
         if (id.startsWith("vite/") || path.isAbsolute(id)) {
           return;
