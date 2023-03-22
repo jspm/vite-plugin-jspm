@@ -104,19 +104,10 @@ async function plugin(pluginOptions?: PluginOptions): Promise<Plugin[]> {
           log(`jspm:imports-scan: Resolving ${id}`);
           generator.resolve(id);
         } catch {
-<<<<<<< HEAD
-          if (importer?.startsWith("http")) {
-            return;
-          }
-          try {
-            installPromiseCache.push(generator.install(id));
-          } catch { }
-=======
           log(`jspm:imports-scan: Installing ${id}`);
           promises.push(generator.install(id));
         } finally {
           resolvedDeps.add(id);
->>>>>>> main
         }
 
         return;
@@ -135,17 +126,6 @@ async function plugin(pluginOptions?: PluginOptions): Promise<Plugin[]> {
           return null;
         }
 
-<<<<<<< HEAD
-        const options = getOptions(env, _options);
-        const generator = getGenerator(options);
-        let proxyPath;
-        try {
-          await Promise.all(installPromiseCache);
-          installPromiseCache.length = 0;
-        } catch { }
-
-=======
->>>>>>> main
         if (id.startsWith("vite/") || path.isAbsolute(id)) {
           return;
         }
