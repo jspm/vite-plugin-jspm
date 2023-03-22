@@ -5,7 +5,7 @@ const App = () => {
   return (
     <div>
       <h1>Hello, world!</h1>
-      hsdf
+      <p>Loading {React.version}</p>
     </div>
   )
 }
