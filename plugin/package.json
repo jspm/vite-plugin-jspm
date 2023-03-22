@@ -1,43 +1,46 @@
 {
-  "name": "vite-plugin-jspm",
-  "version": "0.2.0",
-  "type": "module",
-  "scripts": {
-    "build": "rimraf dist && rollup -c",
-    "dev": "rollup -c --watch src",
-    "typecheck": "tsc --noEmit"
-  },
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+    "name": "vite-plugin-jspm",
+    "version": "0.2.0",
+    "type": "module",
+    "scripts": {
+        "build": "rimraf dist && rollup -c",
+        "dev": "rollup -c --watch src",
+        "typecheck": "tsc --noEmit"
+    },
+    "main": "./dist/index.js",
+    "module": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "import": "./dist/index.js",
+            "types": "./dist/index.d.ts"
+        }
+    },
+    "files": [
+        "dist",
+        "bin",
+        "*.d.ts"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/aslemammad/vite-plugin-jspm.git"
+    },
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/aslemammad/vite-plugin-jspm/issues"
+    },
+    "homepage": "https://github.com/aslemammad/vite-plugin-jspm#readme",
+    "devDependencies": {
+        "@vue/compiler-core": "^3.2.31",
+        "@vue/compiler-dom": "^3.2.31"
+    },
+    "dependencies": {
+        "@jspm/generator": "1.1.1"
+    },
+    "peerDependencies": {
+        "vite": "*"
+    },
+    "engines": {
+        "node": ">=14.0.0"
     }
-  },
-  "files": [
-    "dist",
-    "bin",
-    "*.d.ts"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/aslemammad/vite-plugin-jspm.git"
-  },
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/aslemammad/vite-plugin-jspm/issues"
-  },
-  "homepage": "https://github.com/aslemammad/vite-plugin-jspm#readme",
-  "devDependencies": {
-    "@vue/compiler-core": "^3.2.31",
-    "@vue/compiler-dom": "^3.2.31"
-  },
-  "dependencies": {
-    "@jspm/generator": "^1.0.2"
-  },
-  "engines": {
-    "node": ">=14.0.0"
-  }
 }

@@ -8,7 +8,6 @@ type PluginOptions = GeneratorOptions & {
 };
 
 const getDefaultOptions = (): PluginOptions => ({
-  defaultProvider: "jspm",
   debug: false,
   env: ["browser", "module"],
 });
@@ -121,7 +120,7 @@ async function plugin(pluginOptions?: PluginOptions): Promise<Plugin[]> {
         try {
           await Promise.allSettled(promises);
           promises.length = 0;
-        } catch {}
+        } catch { }
 
         if (ctx.ssr) {
           return null;
