@@ -38,6 +38,10 @@ When passed, downloads the dependencies and bundles them with the build. But in 
 
 `debug` let's you skim through the logs during resolution and downloading pahses.
 
+### pollyfillProvider
+
+`pollyfillProvider` allow users to define their own pollyfill provider instead of `ga.jspm.io`, it can be a function `(version: string) => string` or a `string`. For function,  the parameter `version` is `es-module-shims`'s version, user should return a complete url like `https://ga.jspm.io/npm:es-module-shims@1.8.0/dist/es-module-shims.js`.
+
 # Bundle size
 
 You can see the bundle size of [`test/basic`](https://github.com/jspm/vite-plugin-jspm/tree/main/test/basic) example in two cases:
