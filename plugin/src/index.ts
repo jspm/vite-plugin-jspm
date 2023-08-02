@@ -5,6 +5,7 @@ import type { HtmlTagDescriptor, Plugin } from "vite";
 type PluginOptions = GeneratorOptions & {
   downloadDeps?: boolean;
   debug?: boolean;
+  pollyfillProvider?: ((version: string) => string) | string;
 };
 
 const getDefaultOptions = (): PluginOptions => ({
@@ -182,11 +183,18 @@ async function plugin(pluginOptions?: PluginOptions): Promise<Plugin[]> {
         async transform(html) {
           resolvedDeps.clear();
           const esModuleShims = await getLatestVersionOfShims();
+          let srcUrl = `https://ga.jspm.io/npm:es-module-shims@${esModuleShims}/dist/es-module-shims.js`
+          if (options.pollyfillProvider) {
+            if (typeof options.pollyfillProvider === 'function')
+              srcUrl = options.pollyfillProvider(esModuleShims)
+            else if (typeof options.pollyfillProvider === 'string')
+              srcUrl = options.pollyfillProvider
+          }
           const tags: HtmlTagDescriptor[] = [
             {
               tag: "script",
               attrs: {
-                src: `https://ga.jspm.io/npm:es-module-shims@${esModuleShims}/dist/es-module-shims.js`,
+                src: srcUrl,
                 async: true,
               },
               injectTo: "head-prepend",
