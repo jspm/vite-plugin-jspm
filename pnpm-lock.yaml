@@ -1,9 +1,5 @@
 lockfileVersion: '6.0'
 
-settings:
-  autoInstallPeers: true
-  excludeLinksFromLockfile: false
-
 importers:
 
   .:
@@ -60,8 +56,8 @@ importers:
   plugin:
     dependencies:
       '@jspm/generator':
-        specifier: ^1.1.1
-        version: 1.1.1(google-protobuf@3.21.2)
+        specifier: ^1.1.9
+        version: 1.1.9(google-protobuf@3.21.2)
       vite:
         specifier: '*'
         version: 4.1.1(@types/node@18.0.0)
@@ -836,8 +832,8 @@ packages:
       '@jridgewell/sourcemap-codec': 1.4.14
     dev: false
 
-  /@jspm/generator@1.1.1(google-protobuf@3.21.2):
-    resolution: {integrity: sha512-ni7DWLWT/Dh+QLpvC58g+5HPvojcSDauisJrEQnXqe4bdPQunQEoORi+9LqovM5baTPW2odXQQiQqpxOAhEvkA==}
+  /@jspm/generator@1.1.9(google-protobuf@3.21.2):
+    resolution: {integrity: sha512-ZSr+yeceUv/+h8tMH68bvzMWwe4rzW+ihx94N0f7ifGLUvT2r7I/tS7l1hpB0kMtL+DIfgS7ENt5gpQIXgrdrQ==}
     dependencies:
       '@babel/core': 7.21.3
       '@babel/plugin-syntax-import-assertions': 7.20.0(@babel/core@7.21.3)
@@ -3458,3 +3454,7 @@ packages:
     resolution: {integrity: sha512-9bnSc/HEW2uRy67wc+T8UwauLuPJVn28jb+GtJY16iiKWyvmYJRXVT4UamsAEGQfPohgr2q4Tq0sQbQlxTfi1g==}
     engines: {node: '>=12.20'}
     dev: true
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false

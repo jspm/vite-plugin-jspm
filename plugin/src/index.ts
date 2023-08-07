@@ -90,8 +90,8 @@ async function plugin(pluginOptions?: PluginOptions): Promise<Plugin[]> {
         if (
           id.startsWith("/") ||
           id.startsWith(".") ||
-          id.startsWith("vite/") ||
-          id.startsWith("__vite") ||
+          id.includes("vite/") ||
+          id.includes("__vite") ||
           id.includes(".css") ||
           id.includes(".html") ||
           path.isAbsolute(id) ||
@@ -127,7 +127,7 @@ async function plugin(pluginOptions?: PluginOptions): Promise<Plugin[]> {
           return null;
         }
 
-        if (id.startsWith("vite/") || path.isAbsolute(id)) {
+        if (id.includes("vite/") || path.isAbsolute(id)) {
           return;
         }
 
@@ -163,7 +163,7 @@ async function plugin(pluginOptions?: PluginOptions): Promise<Plugin[]> {
         return { id, external: true };
       },
       async load(id) {
-        if (id?.startsWith("vite/") || !id?.startsWith("http")) {
+        if (id?.includes("vite/") || !id?.includes("http")) {
           return;
         }
 

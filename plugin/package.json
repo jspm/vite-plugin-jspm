@@ -35,12 +35,12 @@
         "@vue/compiler-dom": "^3.2.31"
     },
     "dependencies": {
-        "@jspm/generator": "^1.1.1"
+        "@jspm/generator": "^1.1.9"
     },
     "peerDependencies": {
         "vite": "*"
     },
     "engines": {
-        "node": ">=14.0.0"
+        "node": ">=18"
     }
 }
