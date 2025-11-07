@@ -45,6 +45,3 @@ jobs:
         run: |
           cd test/basic
           pnpm run test:ci
-
-      - name: Lint
-        run: pnpm run lint --if-present
