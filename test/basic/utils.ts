@@ -17,7 +17,10 @@ export const loadURLAndParseContent = async (
     preview: { port, open: false },
   });
 
-  const browser = puppeteer.launch();
+  const browser = puppeteer.launch({
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+  });
   const page = await (await browser).newPage();
   await page.goto(`http://localhost:${port}`);
   await page.waitForNetworkIdle();

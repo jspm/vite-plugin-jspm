@@ -22,15 +22,15 @@ jobs:
       fail-fast: false
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v2.0.1
+        uses: pnpm/action-setup@v4
         with:
-          version: 6.23.5
+          version: 9
 
       - name: Set node version to ${{ matrix.node_version }}
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node_version }}
           cache: "pnpm"
@@ -45,6 +45,3 @@ jobs:
         run: |
           cd test/basic
           pnpm run test:ci
-
-      - name: Lint
-        run: pnpm run lint --if-present

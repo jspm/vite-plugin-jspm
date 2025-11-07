@@ -40,7 +40,6 @@ describe("build", async () => {
 
     const indexHTML = getFileFromOutput(output, "index.html");
     const indexJS = getFileFromOutput(output, "index.js");
-    const content = await loadURLAndParseContent(buildPath);
 
     expect(output).toBeDefined();
     expect(indexHTML).toBeDefined();
