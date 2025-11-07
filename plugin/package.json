@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-jspm",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "type": "module",
   "scripts": {
     "build": "rimraf dist && rollup -c",
@@ -35,7 +35,7 @@
     "@vue/compiler-dom": "^3.2.31"
   },
   "dependencies": {
-    "@jspm/generator": "^2.3.0"
+    "@jspm/generator": "^2.7.6"
   },
   "peerDependencies": {
     "vite": "*"

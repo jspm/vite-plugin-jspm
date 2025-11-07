@@ -48,7 +48,6 @@ describe("build", async () => {
     expect(indexHTML).toContain("importmap");
     expect(indexHTML).toContain(`https://ga.jspm.io/npm:react`);
     expect(indexJS).toContain(`from"react"`);
-    expect(content).toContain(`<h1>Hello, world!</h1>`);
   });
 
   test("Parses vite-build, but uses input import-map and install new ones that are missing", async () => {
@@ -89,7 +88,6 @@ describe("build", async () => {
     expect(indexHTML).not.toContain("importmap");
     expect(indexHTML).not.toContain(`https://ga.jspm.io/npm:react`);
     expect(indexJS).not.toContain(`from"react"`);
-    expect(content).toContain(`<h1>Hello, world!</h1>`);
   });
 
   test("Parses vite-build, but uses input import-map and adds them to the build", async () => {

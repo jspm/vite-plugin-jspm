@@ -2,6 +2,12 @@ import path from "path";
 import { Generator, GeneratorOptions, fetch } from "@jspm/generator";
 import type { HtmlTagDescriptor, Plugin } from "vite";
 
+const fetchFn =
+    typeof fetch === "function" ? fetch : (globalThis as any).fetch;
+if (!fetchFn) {
+  throw new Error("fetch is not available");
+}
+
 type PluginOptions = GeneratorOptions & {
   downloadDeps?: boolean;
   debug?: boolean;
@@ -14,9 +20,8 @@ const getDefaultOptions = (): PluginOptions => ({
 });
 
 const getLatestVersionOfShims = async () => {
-  const version = await (
-    await fetch(`https://ga.jspm.io/npm:es-module-shims`)
-  ).text();
+  const res = await fetchFn(`https://ga.jspm.io/npm:es-module-shims`);
+  const version = await res.text();
   return version;
 };
 
@@ -169,7 +174,7 @@ async function plugin(pluginOptions?: PluginOptions): Promise<Plugin[]> {
 
         if (options?.downloadDeps) {
           log(`jspm:import-mapping: Downloading ${id}`);
-          const code = await (await fetch(id)).text();
+          const code = await (await fetchFn(id)).text();
           return code;
         }
         return;
