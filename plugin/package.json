@@ -35,7 +35,7 @@
     "@vue/compiler-dom": "^3.2.31"
   },
   "dependencies": {
-    "@jspm/generator": "^2.7.6"
+    "@jspm/generator": "^2.10.0"
   },
   "peerDependencies": {
     "vite": "*"
